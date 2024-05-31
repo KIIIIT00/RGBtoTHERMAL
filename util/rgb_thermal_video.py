@@ -10,6 +10,9 @@ rgbカメラの動画とサーマルカメラの動画を取得する
 Escでプログラム終了
 
 FLIRのロゴを消すために, 640x425にする
+
+やること
+画角を合わせる
 """
 
 import numpy as np
@@ -18,6 +21,18 @@ import os
 from natsort import natsorted
 import re
 
+"""
+関数定義
+"""
+# 画像の大きさを合わせる
+def match_size(img_rgb, img_thermal):
+    h_rgb, w_rgb, _ = img_rgb.shape
+    h_thermal, w_thermal, _ = img_thermal.shape
+    h_max = max([h_rgb, h_thermal])
+    w_max = max([w_rgb, w_thermal])
+    img_rgb = cv2.resize(img_rgb, dsize=(w_max, h_max))
+    img_thermal = cv2.resize(img_thermal, dsize=(w_max, h_max))
+    return img_rgb, img_thermal
 
 tate = 7    # 縦の交点の個数
 yoko = 10   # 横の交点の個数
@@ -61,7 +76,7 @@ mtx = np.array([652.16543875, 0, 334.56278851, 0, 652.73887052, 211.97831963, 0,
 dist = np.array([-4.53267525e-01, 5.46379835e-01, 8.86693500e-04, -1.84251987e-03, -1.06001180e+00])
 
 files = os.listdir('./Data/rgb_img')
-print(len(files))
+# print(len(files))
 #print(os.path.isfile('./Data/rgb_img/'))
 # ファイルが存在しない場合
 if len(files) == 0:
@@ -86,11 +101,12 @@ while True:
     #カメラからの画像取得
     ret1, frame_rgb = cap_rgb.read()
     ret2, frame_thermal = cap_thermal.read()
+
     # 上下反転
     frame_thermal = cv2.flip(cv2.flip(frame_thermal, 0), 1)
 
     # ロゴを削除するために、画像を抽出
-    frame_thermal = frame_thermal[0:425, 0:640]
+    #frame_thermal = frame_thermal[0:425, 0:640]
 
     if key == ord('s') and not is_recording:
         #fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
@@ -117,6 +133,7 @@ while True:
     # crop the image
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
+    dst, frame_thermal = match_size(dst, frame_thermal)
     if key == ord('c'):
         cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
         cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
