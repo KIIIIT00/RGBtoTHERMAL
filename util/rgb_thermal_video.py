@@ -13,6 +13,8 @@ FLIRのロゴを消すために, 640x425にする
 
 やること
 画角を合わせる
+サーマルカメラの視野45°
+
 """
 
 import numpy as np
@@ -137,6 +139,7 @@ while True:
     if key == ord('c'):
         cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
         cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
+        count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
     if is_recording:

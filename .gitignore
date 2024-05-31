@@ -1,5 +1,4 @@
 /FLIR_ADAS_v2/Data/*
 /CameraCalibration/calibration_data/*
-/Data/*
-/Data/rgb_video/20240528_174727_H264.mp4
-/Data/thermal_video/20240528_174727_H264_A.mov
+/Data/rgb_video/*
+/Data/thermal_video/*
