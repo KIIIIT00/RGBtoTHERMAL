@@ -22,6 +22,7 @@ import cv2
 import os
 from natsort import natsorted
 import re
+import pyautogui
 
 """
 関数定義
@@ -35,6 +36,10 @@ def match_size(img_rgb, img_thermal):
     img_rgb = cv2.resize(img_rgb, dsize=(w_max, h_max))
     img_thermal = cv2.resize(img_thermal, dsize=(w_max, h_max))
     return img_rgb, img_thermal
+
+# 画角合わせ
+#def resize_rgb(img_rgb):
+    
 
 tate = 7    # 縦の交点の個数
 yoko = 10   # 横の交点の個数
@@ -136,12 +141,15 @@ while True:
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
     dst, frame_thermal = match_size(dst, frame_thermal)
+    
+
     if key == ord('c'):
         cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
         cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
         count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
+    
     if is_recording:
         # 録画中のフレームを書き込む
         out_rgb.write(dst)
