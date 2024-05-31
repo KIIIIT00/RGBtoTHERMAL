@@ -7,6 +7,7 @@ Escでプログラム終了
 
 import numpy as np
 import cv2
+import os
 
 
 tate = 7    # 縦の交点の個数
@@ -40,7 +41,7 @@ is_recording = False
 mtx = np.array([652.16543875, 0, 334.56278851, 0, 652.73887052, 211.97831963, 0, 0, 1]).reshape(3,3)
 #dist = np.array(["""***************ここにあらかじめ求めておいた歪み係数を書く***************"""])
 dist = np.array([-4.53267525e-01, 5.46379835e-01, 8.86693500e-04, -1.84251987e-03, -1.06001180e+00])
-
+count = 0
 #繰り返しのためのwhile文
 while True:
 
@@ -52,7 +53,7 @@ while True:
     if key == ord('s') and not is_recording:
         #fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter('output.mp4', fourcc, fps, (w, h), isColor=True)
+        out = cv2.VideoWriter('./Data/rgb_video/output.mp4', fourcc, fps, (w, h), isColor=True)
         # 録画を開始
         is_recording = True
         print("Recording started...")
@@ -72,6 +73,8 @@ while True:
     # crop the image
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
+    if key == ord('c'):
+        cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
     cv2.imshow("undistort", dst)
     if is_recording:
         # 録画中のフレームを書き込む
