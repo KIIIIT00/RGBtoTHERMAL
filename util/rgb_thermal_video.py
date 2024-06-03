@@ -37,7 +37,16 @@ def match_size(img_rgb, img_thermal):
     img_thermal = cv2.resize(img_thermal, dsize=(w_max, h_max))
     return img_rgb, img_thermal
 
+# 画像の大きさを256x256にする
+def match_256x256(img_rgb, img_thermal):
+    img_rgb = cv2.resize(img_rgb, dsize=(256, 256))
+    img_thermal = cv2.resize(img_thermal, dsize=(256, 256))
+    return img_rgb, img_thermal
 
+def match_512x512(img_rgb, img_thermal):
+    img_rgb = cv2.resize(img_rgb, dsize=(512, 512))
+    img_thermal = cv2.resize(img_thermal, dsize=(512, 512))
+    return img_rgb, img_thermal
 # 画角合わせ
 #def resize_rgb(img_rgb):
     
@@ -144,7 +153,7 @@ while True:
     dst, frame_thermal = match_size(dst, frame_thermal)
 
     # サーマルと画像の位置合わせ
-    dst = dst[46:446,31:585]
+    dst = dst[51:446,31:585]
     
 
     dst, frame_thermal = match_size(dst, frame_thermal)
@@ -152,7 +161,10 @@ while True:
     # FLIRのロゴを消す
     dst = dst[0:425, 0:640]
     frame_thermal = frame_thermal[0:425, 0:640]
-    
+
+    # 画像の大きさを256x256にする
+    dst, frame_thermal = match_512x512(dst, frame_thermal)
+
     
 
     if key == ord('c'):
