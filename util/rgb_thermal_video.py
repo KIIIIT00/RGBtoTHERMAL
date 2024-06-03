@@ -37,6 +37,7 @@ def match_size(img_rgb, img_thermal):
     img_thermal = cv2.resize(img_thermal, dsize=(w_max, h_max))
     return img_rgb, img_thermal
 
+
 # 画角合わせ
 #def resize_rgb(img_rgb):
     
@@ -141,6 +142,17 @@ while True:
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
     dst, frame_thermal = match_size(dst, frame_thermal)
+
+    # サーマルと画像の位置合わせ
+    dst = dst[46:446,31:585]
+    
+
+    dst, frame_thermal = match_size(dst, frame_thermal)
+
+    # FLIRのロゴを消す
+    dst = dst[0:425, 0:640]
+    frame_thermal = frame_thermal[0:425, 0:640]
+    
     
 
     if key == ord('c'):
@@ -149,6 +161,7 @@ while True:
         count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
+
     
     if is_recording:
         # 録画中のフレームを書き込む
