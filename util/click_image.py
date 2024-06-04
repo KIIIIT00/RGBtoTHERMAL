@@ -4,8 +4,8 @@
 
 import cv2
 import numpy as np
-file_rgb_name='./Data/rgb_img/pic48.png'
-file_thermal_name = './Data/thermal_img/pic48.png'
+file_rgb_name='./Data/rgb_img/pic7.png'
+file_thermal_name = './Data/thermal_img/pic7.png'
 img=cv2.imread(file_rgb_name,cv2.IMREAD_COLOR)
 thermal_img = cv2.imread(file_thermal_name, cv2.IMREAD_COLOR)
 

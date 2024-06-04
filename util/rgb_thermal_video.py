@@ -124,11 +124,11 @@ if len(files_video) == 0:
     video_count = 0
 else:
     files_video = natsorted(files_video)
-    lastvideofile = files[len(files_video) -1]
+    lastvideofile = files_video[len(files_video) -1]
     # 拡張なしのファイル名を取得
     lastvideofile_name = os.path.splitext(os.path.basename(lastvideofile))[0]
     video_num = int(re.sub(r'[^0-9]', '',lastvideofile))
-    print("video_num:" + video_num)
+    print("video_num:" + str(video_num))
     video_count = video_count + 1
 print("video_count:" + str(video_count))
 
@@ -153,8 +153,8 @@ while True:
     if key == ord('s') and not is_recording:
         #fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out_rgb = cv2.VideoWriter('./Data/rgb_video/'f'{video_count}.mp4', fourcc, fps_rgb, (w_rgb, h_rgb), isColor=True)
-        out_thermal = cv2.VideoWriter('./Data/thermal_video/'f'{video_count}.mp4', fourcc, fps_rgb, (w_thermal, h_thermal))
+        out_rgb = cv2.VideoWriter('./Data/rgb_video/'f'{video_count}.mp4', fourcc, fps_rgb, (512, 512), isColor=True)
+        out_thermal = cv2.VideoWriter('./Data/thermal_video/'f'{video_count}.mp4', fourcc, fps_rgb, (512, 512))
         # 録画を開始
         is_recording = True
         print("Recording started...")
@@ -179,7 +179,11 @@ while True:
     dst, frame_thermal = match_size(dst, frame_thermal)
 
     # サーマルと画像の位置合わせ
-    dst = dst[51:446,31:585]
+    # dst = dst[51:446,31:585]
+    dst = dst[80:453, 15 :580]
+
+    # FLIRのロゴを消す
+    #frame_thermal = frame_thermal[0:425, 0:640]
     
 
     dst, frame_thermal = match_size(dst, frame_thermal)
