@@ -7,13 +7,12 @@ rgbカメラの動画とサーマルカメラの動画を取得する
 キーボード s入力で、録画スタート
 キーボード f入力で,録画ストップ
 キーボード c入力で、画像を取得
+キーボード i入力で,1秒ごとの画像の取得をスタートする
+キーボード q入力で,1秒ごとの画像の取得をストップする
 Escでプログラム終了
 
 FLIRのロゴを消すために, 640x425にする
 
-やること
-画角を合わせる
-サーマルカメラの視野45°
 
 """
 
@@ -27,6 +26,8 @@ import pyautogui
 """
 関数定義
 """
+#############################################################################################
+
 # 画像の大きさを合わせる
 def match_size(img_rgb, img_thermal):
     h_rgb, w_rgb, _ = img_rgb.shape
@@ -47,6 +48,8 @@ def match_512x512(img_rgb, img_thermal):
     img_rgb = cv2.resize(img_rgb, dsize=(512, 512))
     img_thermal = cv2.resize(img_thermal, dsize=(512, 512))
     return img_rgb, img_thermal
+
+#############################################################################################
 # 画角合わせ
 #def resize_rgb(img_rgb):
     
@@ -86,6 +89,9 @@ print("THEMAL_FPS {}:".format(fps_thermal))
 # 録画状況を管理するフラグ
 is_recording = False
 
+# 1秒ごとに写真を保存するフラグ
+is_captureFrame = False
+
 # 内部パラメータと歪み係数
 #mtx = np.array(["""***************ここにあらかじめ求めておいた内部パラメータを書く***************"""]).reshape(3,3)
 mtx = np.array([652.16543875, 0, 334.56278851, 0, 652.73887052, 211.97831963, 0, 0, 1]).reshape(3,3)
@@ -93,6 +99,8 @@ mtx = np.array([652.16543875, 0, 334.56278851, 0, 652.73887052, 211.97831963, 0,
 dist = np.array([-4.53267525e-01, 5.46379835e-01, 8.86693500e-04, -1.84251987e-03, -1.06001180e+00])
 
 files = os.listdir('./Data/rgb_img')
+files_video = os.listdir('./Data/rgb_video')
+video_count = 0
 # print(len(files))
 #print(os.path.isfile('./Data/rgb_img/'))
 # ファイルが存在しない場合
@@ -110,8 +118,24 @@ else:
     print(num)
     count = num+ 1
 print(count)   
+
+# 動画ファイルが存在しない場合
+if len(files_video) == 0:
+    video_count = 0
+else:
+    files_video = natsorted(files_video)
+    lastvideofile = files[len(files_video) -1]
+    # 拡張なしのファイル名を取得
+    lastvideofile_name = os.path.splitext(os.path.basename(lastvideofile))[0]
+    video_num = int(re.sub(r'[^0-9]', '',lastvideofile))
+    print("video_num:" + video_num)
+    video_count = video_count + 1
+print("video_count:" + str(video_count))
+
+idx = 0
 #繰り返しのためのwhile文
 while True:
+    
 
     key =cv2.waitKey(1)
 
@@ -125,15 +149,17 @@ while True:
     # ロゴを削除するために、画像を抽出
     #frame_thermal = frame_thermal[0:425, 0:640]
 
+    # 動画のスタート
     if key == ord('s') and not is_recording:
         #fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out_rgb = cv2.VideoWriter('./Data/rgb_video/output.mp4', fourcc, fps_rgb, (w_rgb, h_rgb), isColor=True)
-        out_thermal = cv2.VideoWriter('./Data/thermal_video/output.mp4', fourcc, fps_rgb, (w_thermal, h_thermal))
+        out_rgb = cv2.VideoWriter('./Data/rgb_video/'f'{video_count}.mp4', fourcc, fps_rgb, (w_rgb, h_rgb), isColor=True)
+        out_thermal = cv2.VideoWriter('./Data/thermal_video/'f'{video_count}.mp4', fourcc, fps_rgb, (w_thermal, h_thermal))
         # 録画を開始
         is_recording = True
         print("Recording started...")
-    
+
+     # 動画のストップ
     if key == ord('f') and is_recording:
         is_recording = False
         out_rgb.release()
@@ -165,8 +191,34 @@ while True:
     # 画像の大きさを256x256にする
     dst, frame_thermal = match_512x512(dst, frame_thermal)
 
-    
+    # 1秒ごとの写真を保存するフラグをtrueに
+    if key ==  ord('i') and not is_captureFrame:
+        is_captureFrame = True
 
+    # 1秒ごとの写真を保存するフラグをFalseにすることで，その処理をやめる
+    if key == ord('q') and is_captureFrame:
+        is_captureFrame = False
+    
+    # 1秒ごとの写真を保存する
+    """
+    if is_captureFrame:
+        # 0秒のフレームを保存
+        if cap_rgb.get(cv2.CAP_PROP_POS_FRAMES) == 1 and cap_thermal.get(cv2.CAP_PROP_POS_FRAMES) ==1:
+            cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
+            cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
+            count += 1
+
+        elif idx < cap_rgb.get(cv2.CAP_PROP_FPS):
+            continue
+        else: # 1秒ずつフレームを保存
+            cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
+            cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
+            count += 1
+            idx = 0
+        """
+            
+
+    # 写真の保存をする
     if key == ord('c'):
         cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
         cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
@@ -241,3 +293,8 @@ cap_rgb.release()
 cap_thermal.release()
 #out.release()
 cv2.destroyAllWindows()
+
+"""
+参考:
+    https://qiita.com/hirobf10/items/ed81618d62a292a1ec6e
+"""
