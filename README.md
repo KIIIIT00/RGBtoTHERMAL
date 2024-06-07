@@ -26,3 +26,7 @@ https://ritsumei365-my.sharepoint.com/:f:/r/personal/is0611if_ed_ritsumei_ac_jp/
 Pix2Pix．CycleGANのオープンソースは以下のURLにある
 
 https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
+
+Pix2Pixの実行ファイルを以下に追記していく
+
+https://gist.github.com/KawaharaItsuki/5fd863b8e5f86bb02b11da5b4ecd82aa
