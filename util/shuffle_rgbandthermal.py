@@ -12,13 +12,13 @@ import numpy as np
 import cv2
 import argparse
 from multiprocessing import Pool
-
+import combine_RGBandTHERMAL 
 
 # 参照元のフォルダ
-#RGB_DIR_PNG_PATH = './Data/rgb_img/png/'
-#THERMAL_DIR_PNG_PATH = './Data/thermal_img/png/'
-#RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
-#THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
+RGB_DIR_PNG_PATH = './Data/rgb_img/png/'
+THERMAL_DIR_PNG_PATH = './Data/thermal_img/png/'
+RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
+THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
 
 # 移動後のフォルダ
 COMBINE_DIR_PATH = './Combine/Scene1/'
@@ -49,6 +49,7 @@ def make_dir(TRAIN_DIR_PATH, TEST_DIR_PATH, VAL_DIR_PATH):
 
 # Dataフォルダに入っているRGB画像とサーモグラフィのファイル数を配列にいれる
 # 配列を返す
+# ただし，rgb_imgとthermal_imgに入っているファイル数が一緒であると仮定
 def get_Data_filenum_list(RGB_DIR_PATH, THERMAL_DIR_PATH):
   if len(os.listdir(RGB_DIR_PATH)) == len(os.listdir(THERMAL_DIR_PATH)):
     filenumlist = []
@@ -59,21 +60,18 @@ def get_Data_filenum_list(RGB_DIR_PATH, THERMAL_DIR_PATH):
   else:
     print("[Error]ファイル数が一致しません")
     return None
-
-# RGBとTHERMALの結合した画像のファイルの数をリストに入れて返す
+# COMBINEフォルダのファイル番号を格納するリストを返す
 def get_filenum_list(COMBINE_PATH):
-  filenum_list = []
+  filenumlist = []
   filenum = len(os.listdir(COMBINE_PATH))
   for num in range(filenum):
-    filenum_list.append(num)
-  return filenum_list
-
-
+    filenumlist.append(num)
+  return filenumlist
 # ファイルの番号を格納したリストを分割する
 # フォルダが存在するときは，train,test,valの番号を格納したリストを返す
 # フォルダが存在しないとき，はNoneを返す
-def data_split(COMBAINE_PATH):
-  list = get_filenum_list(COMBAINE_PATH)
+def data_split(COMBINE_PATH):
+  list = get_filenum_list(COMBINE_PATH)
   if list is not None:
     # train用データを70%,乱数を固定
     train, other = train_test_split(list, test_size= 0.3, random_state=5)
@@ -98,18 +96,28 @@ def move_dir(list,input_dir, move_dir_path):
     for filename in file_list:
       # listの中の番号とfilenameが一致したとき
       if str(name) + '.jpg' == filename:
-        print(filename)
         file_path = os.path.join(input_dir, filename)
+        print(file_path)
         img = cv2.imread(file_path, cv2.IMREAD_COLOR)
         cv2.imwrite(move_dir_path+str(count)+'.jpg', img)
         count+= 1
 
+  
+# RGBとサーモグラフィの画像の結合
+# INPUT_PATH：RGBのファイル
+# OUTPUT_PATH：THERMALのファイル
+def image_write(OUTPUT_PATH, INPUT_PATH, COMBINE_PATH):
+  img_THERMAL = cv2.imread(OUTPUT_PATH, cv2.IMREAD_COLOR)
+  img_RGB = cv2.imread(INPUT_PATH, cv2.IMREAD_COLOR)
+  img_THERMAL_RGB = np.concatenate([img_THERMAL,img_RGB],1)
+  cv2.imwrite(COMBINE_PATH, img_THERMAL_RGB)
+
 
 ################################################
 
-
 if __name__ == '__main__':
   train, test, val = data_split(COMBINE_DIR_PATH)
+  # 実行済み
   #move_dir(train, COMBINE_DIR_PATH, MOVE_TRAIN_DIR_PATH)
-  move_dir(test, COMBINE_DIR_PATH, MOVE_TEST_DIR_PATH)
-  move_dir(val, COMBINE_DIR_PATH, MOVE_VAL_DIR_PATH)
+  #move_dir(test, COMBINE_DIR_PATH, MOVE_TEST_DIR_PATH)
+  #move_dir(val, COMBINE_DIR_PATH, MOVE_VAL_DIR_PATH)
