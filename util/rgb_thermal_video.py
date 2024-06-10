@@ -98,7 +98,7 @@ mtx = np.array([652.16543875, 0, 334.56278851, 0, 652.73887052, 211.97831963, 0,
 #dist = np.array(["""***************ここにあらかじめ求めておいた歪み係数を書く***************"""])
 dist = np.array([-4.53267525e-01, 5.46379835e-01, 8.86693500e-04, -1.84251987e-03, -1.06001180e+00])
 
-files = os.listdir('./Data/rgb_img')
+files = os.listdir('./Data/jpg/rgb_img')
 files_video = os.listdir('./Data/rgb_video')
 video_count = 0
 # print(len(files))
@@ -109,7 +109,7 @@ if len(files) == 0:
     count = 0
 else:
     # ディレクトリのファイルを取る
-    files = os.listdir('./Data/rgb_img')
+    files = os.listdir('./Data/jpg/rgb_img')
     files = natsorted(files)
     lastfile = files[len(files) -1]
     # 拡張子なしのファイル名の取得
@@ -224,8 +224,8 @@ while True:
 
     # 写真の保存をする
     if key == ord('c'):
-        cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
-        cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
+        cv2.imwrite('./Data/jpg/rgb_img/'f'pic{count}.jpg',dst)
+        cv2.imwrite('./Data/jpg/thermal_img/'f'pic{count}.jpg', frame_thermal)
         count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)

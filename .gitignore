@@ -1,4 +1,6 @@
-/FLIR_ADAS_v2/Data/*
-/CameraCalibration/calibration_data/*
-/Data/rgb_video/*
-/Data/thermal_video/*
+/FLIR_ADAS_v2/*
+/Data/*
+/CameraCalibration/CameraCalibration/*
+FLIR_ADAS_v2
+Data
+CameraCalibration

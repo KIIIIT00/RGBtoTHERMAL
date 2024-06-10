@@ -27,8 +27,8 @@ else:
     count = num+ 1
     print(count)
 
-rgb_capture = cv2.VideoCapture('./Data/rgb_video/0.mp4')   
-thermal_capture = cv2.VideoCapture('./Data/thermal_video/0.mp4')
+rgb_capture = cv2.VideoCapture('./Data/rgb_video/1.mp4')   
+thermal_capture = cv2.VideoCapture('./Data/thermal_video/1.mp4')
 rgb_fps =  rgb_capture.get(cv2.CAP_PROP_FPS)
 thermal_fps = thermal_capture.get(cv2.CAP_PROP_FPS)
 print(rgb_fps)
@@ -44,8 +44,8 @@ while True:
     
     if int(fpscount % rgb_fps) == 0 and int(fpscount % thermal_fps) == 0: #１秒ごとにフレームを保存
         print(anscount)
-        cv2.imwrite('.//Data/rgb_img/'f'pic{count}.png', rgb_frame)
-        cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', thermal_frame)
+        cv2.imwrite('.//Data/png/rgb_img/'f'pic{count}.png', rgb_frame)
+        cv2.imwrite('./Data/png/thermal_img/'f'pic{count}.png', thermal_frame)
         anscount += 1
         count += 1
         
