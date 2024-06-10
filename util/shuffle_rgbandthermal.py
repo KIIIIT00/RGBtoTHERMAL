@@ -21,7 +21,7 @@ RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
 THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
 
 # 移動後のフォルダ
-COMBINE_DIR_PATH = './combine/Scene1/'
+COMBINE_DIR_PATH = './Combine/Scene1/'
 MOVE_TRAIN_DIR_PATH = './datasets/Scene1/train/'
 MOVE_TEST_DIR_PATH = './datasets/Scene1/test/'
 MOVE_VAL_DIR_PATH = './datasets/Scene1/val/'
@@ -60,17 +60,23 @@ def get_Data_filenum_list(RGB_DIR_PATH, THERMAL_DIR_PATH):
   else:
     print("[Error]ファイル数が一致しません")
     return None
-
+# COMBINEフォルダのファイル番号を格納するリストを返す
+def get_filenum_list(COMBINE_PATH):
+  filenumlist = []
+  filenum = len(os.listdir(COMBINE_PATH))
+  for num in range(filenum):
+    filenumlist.append(num)
+  return filenumlist
 # ファイルの番号を格納したリストを分割する
 # フォルダが存在するときは，train,test,valの番号を格納したリストを返す
 # フォルダが存在しないとき，はNoneを返す
-def data_split(RGB_DIR_PATH, THERMAL_DIR_PATH):
-  list = get_Data_filenum_list(RGB_DIR_PATH, THERMAL_DIR_PATH)
+def data_split(COMBINE_PATH):
+  list = get_filenum_list(COMBINE_PATH)
   if list is not None:
     # train用データを70%,乱数を固定
-    train, other = train_test_split(list, test_size= 0.7, random_state=5)
+    train, other = train_test_split(list, test_size= 0.3, random_state=5)
     # test用データを27%，val用データを3%
-    test, val = train_test_split(other, test_size=0.9, random_state=5)
+    test, val = train_test_split(other, test_size=0.1, random_state=5)
     return train, test, val
   else:
     print("[Error]リストが見つかりません")
@@ -89,10 +95,11 @@ def move_dir(list,input_dir, move_dir_path):
   for name in list:
     for filename in file_list:
       # listの中の番号とfilenameが一致したとき
-      if str(name) + '.png' == filename:
+      if str(name) + '.jpg' == filename:
         file_path = os.path.join(input_dir, filename)
+        print(file_path)
         img = cv2.imread(file_path, cv2.IMREAD_COLOR)
-        cv2.imwrite(move_dir_path+str(count)+'.png')
+        cv2.imwrite(move_dir_path+str(count)+'.jpg', img)
         count+= 1
 
   
@@ -109,4 +116,8 @@ def image_write(OUTPUT_PATH, INPUT_PATH, COMBINE_PATH):
 ################################################
 
 if __name__ == '__main__':
-  
+  train, test, val = data_split(COMBINE_DIR_PATH)
+  # 実行済み
+  #move_dir(train, COMBINE_DIR_PATH, MOVE_TRAIN_DIR_PATH)
+  #move_dir(test, COMBINE_DIR_PATH, MOVE_TEST_DIR_PATH)
+  #move_dir(val, COMBINE_DIR_PATH, MOVE_VAL_DIR_PATH)
