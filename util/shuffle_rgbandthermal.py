@@ -21,11 +21,15 @@ RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
 THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
 
 # 移動後のフォルダ
-COMBINE_DIR_PATH = './Combine/Scene1/'
-MOVE_TRAIN_DIR_PATH = './datasets/Scene1/train/'
-MOVE_TEST_DIR_PATH = './datasets/Scene1/test/'
-MOVE_VAL_DIR_PATH = './datasets/Scene1/val/'
+#COMBINE_DIR_PATH = './Combine/Scene1/'
+COMBINE_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/combine/"
+#MOVE_TRAIN_DIR_PATH = './datasets/Scene1/train/'
+#MOVE_TEST_DIR_PATH = './datasets/Scene1/test/'
+#MOVE_VAL_DIR_PATH = './datasets/Scene1/val/'
 
+MOVE_TEST_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/test/"
+MOVE_VAL_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/val/"
+MOVE_TRAIN_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/train/"
 """
 関数定義
 """
@@ -91,13 +95,13 @@ def data_split(COMBINE_PATH):
 def move_dir(list,input_dir, move_dir_path):
   # フォルダ内のファイルを配列に格納する
   file_list = os.listdir(input_dir)
-  count = 0
+  count = 1
   for name in list:
     for filename in file_list:
       # listの中の番号とfilenameが一致したとき
       if str(name) + '.jpg' == filename:
         file_path = os.path.join(input_dir, filename)
-        print(file_path)
+        #print(file_path)
         img = cv2.imread(file_path, cv2.IMREAD_COLOR)
         cv2.imwrite(move_dir_path+str(count)+'.jpg', img)
         count+= 1
@@ -108,7 +112,10 @@ def move_dir(list,input_dir, move_dir_path):
 # OUTPUT_PATH：THERMALのファイル
 def image_write(OUTPUT_PATH, INPUT_PATH, COMBINE_PATH):
   img_THERMAL = cv2.imread(OUTPUT_PATH, cv2.IMREAD_COLOR)
+  img_THERMAL = cv2.resize(img_THERMAL, dtype=(256, 256))
   img_RGB = cv2.imread(INPUT_PATH, cv2.IMREAD_COLOR)
+  img_RGB = cv2.resize(img_RGB, dtype=(256, 256))
+  print(img_RGB.size)
   img_THERMAL_RGB = np.concatenate([img_THERMAL,img_RGB],1)
   cv2.imwrite(COMBINE_PATH, img_THERMAL_RGB)
 
@@ -118,6 +125,6 @@ def image_write(OUTPUT_PATH, INPUT_PATH, COMBINE_PATH):
 if __name__ == '__main__':
   train, test, val = data_split(COMBINE_DIR_PATH)
   # 実行済み
-  #move_dir(train, COMBINE_DIR_PATH, MOVE_TRAIN_DIR_PATH)
-  #move_dir(test, COMBINE_DIR_PATH, MOVE_TEST_DIR_PATH)
-  #move_dir(val, COMBINE_DIR_PATH, MOVE_VAL_DIR_PATH)
+  move_dir(train, COMBINE_DIR_PATH, MOVE_TRAIN_DIR_PATH)
+  move_dir(test, COMBINE_DIR_PATH, MOVE_TEST_DIR_PATH)
+  move_dir(val, COMBINE_DIR_PATH, MOVE_VAL_DIR_PATH)
