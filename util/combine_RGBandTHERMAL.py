@@ -17,7 +17,8 @@ RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
 THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
 
 # 移動後のフォルダ
-COMBINE_DIR_PATH = './Combine/Scene1/'
+#COMBINE_DIR_PATH = './Combine/Scene1/'
+COMBINE_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/combine/"
 
 """
 関数定義
@@ -34,7 +35,9 @@ def image_write(OUTPUT_PATH, INPUT_PATH, COMBINE_PATH):
     rgb_path = os.path.join(INPUT_PATH, rgb_file)
     combint_file = thermal_file
     img_THERMAL = cv2.imread(thermal_path, cv2.IMREAD_COLOR)
+    img_THERMAL = cv2.resize(img_THERMAL, dsize=(256, 256))
     img_RGB = cv2.imread(rgb_path, cv2.IMREAD_COLOR)
+    img_RGB = cv2.resize(img_RGB, dsize=(256, 256))
     img_THERMAL_RGB = np.concatenate([img_THERMAL,img_RGB],1)
     combine_path = os.path.join(COMBINE_PATH, combint_file)
     cv2.imwrite(combine_path, img_THERMAL_RGB)
@@ -47,7 +50,7 @@ def convert_png_to_jpg(png_dir_path, jpg_dir_path):
   # 出力フォルダがないとき作成
   os.makedirs(jpg_dir_path, exist_ok=True)
 
-  count = 0
+  count = 1
   # 各PNG画像をJPGに変換
   for png_file in png_files:
     png_path = os.path.join(png_dir_path, png_file)
