@@ -17,8 +17,8 @@ RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
 THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
 
 # 移動後のフォルダ
-#COMBINE_DIR_PATH = './Combine/Scene1/'
-COMBINE_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/combine/"
+COMBINE_DIR_PATH = './Combine/Scene1/'
+# COMBINE_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/combine/"
 
 """
 関数定義

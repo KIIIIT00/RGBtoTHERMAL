@@ -21,15 +21,15 @@ RGB_DIR_JPG_PATH = './Data/rgb_img/jpg/'
 THERMAL_DIR_JPG_PATH = './Data/thermal_img/jpg/'
 
 # 移動後のフォルダ
-#COMBINE_DIR_PATH = './Combine/Scene1/'
-COMBINE_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/combine/"
-#MOVE_TRAIN_DIR_PATH = './datasets/Scene1/train/'
-#MOVE_TEST_DIR_PATH = './datasets/Scene1/test/'
-#MOVE_VAL_DIR_PATH = './datasets/Scene1/val/'
+COMBINE_DIR_PATH = './Combine/Scene1/'
+# COMBINE_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/combine/"
+MOVE_TRAIN_DIR_PATH = './datasets/Scene1/train/'
+MOVE_TEST_DIR_PATH = './datasets/Scene1/test/'
+MOVE_VAL_DIR_PATH = './datasets/Scene1/val/'
 
-MOVE_TEST_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/test/"
-MOVE_VAL_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/val/"
-MOVE_TRAIN_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/train/"
+# MOVE_TEST_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/test/"
+# MOVE_VAL_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/val/"
+# MOVE_TRAIN_DIR_PATH = "/Users/Kawahara/pix2pix/datasets/datasets/facades/train/"
 """
 関数定義
 """
