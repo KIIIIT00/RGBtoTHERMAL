@@ -68,7 +68,8 @@ objp[:,:2] = np.mgrid[0:yoko,0:tate].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 #カメラの設定
-cap_rgb = cv2.VideoCapture(1)
+#カメラの番号は，その時に変える
+cap_rgb = cv2.VideoCapture(2 , cv2.CAP_DSHOW)
 cap_thermal = cv2.VideoCapture(0)
 
 cap_rgb.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
@@ -98,7 +99,7 @@ mtx = np.array([652.16543875, 0, 334.56278851, 0, 652.73887052, 211.97831963, 0,
 #dist = np.array(["""***************ここにあらかじめ求めておいた歪み係数を書く***************"""])
 dist = np.array([-4.53267525e-01, 5.46379835e-01, 8.86693500e-04, -1.84251987e-03, -1.06001180e+00])
 
-files = os.listdir('./Data/jpg/rgb_img')
+files = os.listdir('./Data/rgb_img')
 files_video = os.listdir('./Data/rgb_video')
 video_count = 0
 # print(len(files))
@@ -109,7 +110,7 @@ if len(files) == 0:
     count = 0
 else:
     # ディレクトリのファイルを取る
-    files = os.listdir('./Data/jpg/rgb_img')
+    files = os.listdir('./Data/rgb_img')
     files = natsorted(files)
     lastfile = files[len(files) -1]
     # 拡張子なしのファイル名の取得
@@ -142,6 +143,8 @@ while True:
     #カメラからの画像取得
     ret1, frame_rgb = cap_rgb.read()
     ret2, frame_thermal = cap_thermal.read()
+    print(ret1)
+    print(ret2)
 
     # 上下反転
     frame_thermal = cv2.flip(cv2.flip(frame_thermal, 0), 1)
@@ -180,7 +183,8 @@ while True:
 
     # サーマルと画像の位置合わせ
     # dst = dst[51:446,31:585]
-    dst = dst[80:453, 15 :580]
+    # シーン1の画像合わせ
+    # dst = dst[80:453, 15 :580]
 
     # FLIRのロゴを消す
     #frame_thermal = frame_thermal[0:425, 0:640]
