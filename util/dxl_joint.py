@@ -1,3 +1,10 @@
+"""
+環境構築は，以下のURLを参考にしていただきたい
+https://github.com/ais-lab/sotsuken1/wiki/%E3%83%AD%E3%83%9C%E3%83%83%E3%83%88-%E7%94%BB%E5%83%8F%E5%87%A6%E7%90%86
+
+関節モードでモータを180度の範囲を動かす
+"""
+
 import os
 import time
 from dynamixel_sdk import *  # Uses Dynamixel SDK library
@@ -94,6 +101,7 @@ class DXL():
         return rotate_flag
     
 
+"""
 if __name__ == "__main__":
 # Write goal position
     dx = DXL()
@@ -131,3 +139,4 @@ if __name__ == "__main__":
 cv2.destroyAllWindows()
 # Close port
 portHandler.closePort()
+"""

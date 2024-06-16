@@ -13,6 +13,8 @@ Escでプログラム終了
 
 FLIRのロゴを消すために, 640x425にする
 
+関節モードでモータを動かす
+動かしたときの視野合わせはしなければならない
 
 """
 
@@ -23,6 +25,41 @@ from natsort import natsorted
 import re
 import pyautogui
 
+
+"""
+モーターの設定
+"""
+
+############################################################################################
+import time
+from dynamixel_sdk import *  # Uses Dynamixel SDK library
+import dxl_joint as DXL
+# Control table address
+ADDR_TORQUE_ENABLE       = 24
+ADDR_GOAL_POSITION       = 30
+ADDR_PRESENT_POSITION    = 36
+ADDR_GOAL_POSITION_SPEED = 32
+
+# Protocol version
+PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamixel
+
+# Default setting
+DXL_ID                  = 10    # Dynamixel ID
+BAUDRATE                = 1000000
+DEVICENAME              = "COM4"  # Check which port is being used on your controller
+
+TORQUE_ENABLE           = 1    # Value for enabling the torque
+TORQUE_DISABLE          = 0    # Value for disabling the torque
+DXL_MINIMUM_POSITION_VALUE  = 100  # Dynamixel will rotate between this value
+DXL_MAXIMUM_POSITION_VALUE  = 4000  # and this value
+DXL_MOVING_STATUS_THRESHOLD = 10  # Dynamixel moving status threshold
+
+portHandler = PortHandler(DEVICENAME)
+packetHandler = PacketHandler(PROTOCOL_VERSION)
+
+# 150度基準から-90度の場所にあるとき，0
+rotate_flag = 0
+############################################################################################
 """
 関数定義
 """
@@ -135,6 +172,8 @@ print("video_count:" + str(video_count))
 
 idx = 0
 #繰り返しのためのwhile文
+dx = DXL()
+
 while True:
     
 
@@ -228,8 +267,17 @@ while True:
 
     # 写真の保存をする
     if key == ord('c'):
-        cv2.imwrite('./Data/jpg/rgb_img/'f'pic{count}.jpg',dst)
-        cv2.imwrite('./Data/jpg/thermal_img/'f'pic{count}.jpg', frame_thermal)
+        # モーターを回転させる
+        rotate_flag = dx.moveJoint()
+        # countの値をそろえる
+        # 基準から90度になったとき
+        if rotate_flag:
+            cv2.imwrite('./Data/jpg/rgb_img/'f'pic{count}.jpg',dst)
+            cv2.imwrite('./Data/jpg/thermal_img/'f'pic{count + 1}.jpg', frame_thermal)
+        # 基準から-90度になったとき
+        else: 
+            cv2.imwrite('./Data/jpg/rgb_img/'f'pic{count}.jpg',dst)
+            cv2.imwrite('./Data/jpg/thermal_img/'f'pic{count - 1}.jpg', frame_thermal)
         count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
@@ -301,6 +349,8 @@ cap_rgb.release()
 cap_thermal.release()
 #out.release()
 cv2.destroyAllWindows()
+# Close port
+portHandler.closePort()
 
 """
 参考:
