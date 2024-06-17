@@ -75,14 +75,14 @@ class DXL():
     
     # 90か-90度からPositionに変換する
     @staticmethod
-    def DeqToPos(self,deq):
+    def DeqToPos(deq):
         return (int)(512 + 1024/300 * deq)
     
     # 関節モードを動かす
     def moveJoint(self):
         global rotate_flag
         # 関節モードの速度
-        dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION_SPEED, 50)
+        dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION_SPEED, 300)
 
         # 150度基準から-90度の時
         if rotate_flag == 0:
@@ -101,7 +101,7 @@ class DXL():
         return rotate_flag
     
 
-"""
+
 if __name__ == "__main__":
 # Write goal position
     dx = DXL()
@@ -110,6 +110,9 @@ if __name__ == "__main__":
             break
    
         dx.moveJoint()
+        time.sleep(2)
+        dx.moveJoint()
+        time.sleep(2)
 
     # Write goal position
     #dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL_MINIMUM_POSITION_VALUE)
@@ -118,7 +121,7 @@ if __name__ == "__main__":
     #elif dxl_error != 0:
     #    print("%s" % packetHandler.getRxPacketError(dxl_error))
 
-    time.sleep(2)
+    # time.sleep(2)
 
     # Write goal position
     #dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL_MAXIMUM_POSITION_VALUE)
@@ -139,4 +142,4 @@ if __name__ == "__main__":
 cv2.destroyAllWindows()
 # Close port
 portHandler.closePort()
-"""
+
