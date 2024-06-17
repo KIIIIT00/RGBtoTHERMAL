@@ -102,6 +102,7 @@ class DXL():
     
 
 
+"""
 if __name__ == "__main__":
 # Write goal position
     dx = DXL()
@@ -142,4 +143,6 @@ if __name__ == "__main__":
 cv2.destroyAllWindows()
 # Close port
 portHandler.closePort()
+
+"""
 
