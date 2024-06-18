@@ -24,6 +24,36 @@ import re
 import pyautogui
 
 """
+モーターの設定
+"""
+
+############################################################################################
+from util.DXL import movejoint
+
+from dynamixel_sdk import *  # Uses Dynamixel SDK library
+
+# Protocol version
+PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamixel
+
+# Default setting
+DXL_ID                  = 10    # Dynamixel ID
+BAUDRATE                = 1000000
+DEVICENAME              = "COM3"  # Check which port is being used on your controller
+
+TORQUE_ENABLE           = 1    # Value for enabling the torque
+TORQUE_DISABLE          = 0    # Value for disabling the torque
+DXL_MINIMUM_POSITION_VALUE  = 100  # Dynamixel will rotate between this value
+DXL_MAXIMUM_POSITION_VALUE  = 4000  # and this value
+DXL_MOVING_STATUS_THRESHOLD = 10  # Dynamixel moving status threshold
+
+portHandler = PortHandler(DEVICENAME)
+packetHandler = PacketHandler(PROTOCOL_VERSION)
+
+# 150度基準から-90度の場所にあるとき，0
+rotate_flag = 0
+############################################################################################
+
+"""
 関数定義
 """
 #############################################################################################
@@ -49,6 +79,9 @@ def match_512x512(img_rgb, img_thermal):
     img_thermal = cv2.resize(img_thermal, dsize=(512, 512))
     return img_rgb, img_thermal
 
+# 上下反転させる
+def UpsideDown(img):
+    return cv2.flip(cv2.flip(img, 0), 1)
 #############################################################################################
 # 画角合わせ
 #def resize_rgb(img_rgb):
@@ -67,9 +100,12 @@ objp[:,:2] = np.mgrid[0:yoko,0:tate].T.reshape(-1,2)
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
+
 #カメラの設定
-cap_rgb = cv2.VideoCapture(1)
-cap_thermal = cv2.VideoCapture(0)
+cap_rgb = cv2.VideoCapture(1,cv2.CAP_DSHOW)
+cap_thermal = cv2.VideoCapture(0,cv2.CAP_MSMF)
+print(cap_rgb.isOpened())
+print(cap_thermal.isOpened())
 
 cap_rgb.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
 cap_rgb.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)  # 高さの設定
@@ -98,7 +134,7 @@ mtx = np.array([622.56592404, 0, 318.24063181, 0, 623.20968839, 245.37576884, 0,
 #dist = np.array(["""***************ここにあらかじめ求めておいた歪み係数を書く***************"""])
 dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.25360545])
 
-files = os.listdir('./Data/jpg/rgb_img')
+files = os.listdir('./Data/rgb_img/Scene2/')
 files_video = os.listdir('./Data/rgb_video')
 video_count = 0
 # print(len(files))
@@ -109,7 +145,7 @@ if len(files) == 0:
     count = 0
 else:
     # ディレクトリのファイルを取る
-    files = os.listdir('./Data/jpg/rgb_img')
+    # files = os.listdir('./Data/jpg/rgb_img')
     files = natsorted(files)
     lastfile = files[len(files) -1]
     # 拡張子なしのファイル名の取得
@@ -133,15 +169,17 @@ else:
 print("video_count:" + str(video_count))
 
 idx = 0
+#dx = DXL
 #繰り返しのためのwhile文
 while True:
     
-
     key =cv2.waitKey(1)
 
     #カメラからの画像取得
     ret1, frame_rgb = cap_rgb.read()
     ret2, frame_thermal = cap_thermal.read()
+    #print(ret1)
+    #print(ret2)
 
     # 上下反転
     frame_thermal = cv2.flip(cv2.flip(frame_thermal, 0), 1)
@@ -180,17 +218,17 @@ while True:
 
     # サーマルと画像の位置合わせ
     # dst = dst[51:446,31:585]
-    dst = dst[80:453, 15 :580]
+    #dst = dst[80:453, 15 :580]
 
     # FLIRのロゴを消す
     #frame_thermal = frame_thermal[0:425, 0:640]
     
 
-    dst, frame_thermal = match_size(dst, frame_thermal)
+    #dst, frame_thermal = match_size(dst, frame_thermal)
 
     # FLIRのロゴを消す
-    dst = dst[0:425, 0:640]
-    frame_thermal = frame_thermal[0:425, 0:640]
+    #dst = dst[0:425, 0:640]
+    #frame_thermal = frame_thermal[0:425, 0:640]
 
     # 画像の大きさを256x256にする
     dst, frame_thermal = match_512x512(dst, frame_thermal)
@@ -224,8 +262,16 @@ while True:
 
     # 写真の保存をする
     if key == ord('c'):
-        cv2.imwrite('./Data/jpg/rgb_img/'f'pic{count}.jpg',dst)
-        cv2.imwrite('./Data/jpg/thermal_img/'f'pic{count}.jpg', frame_thermal)
+        rotate_flag = movejoint()
+        # countの値をそろえる
+        # 基準から90度になったとき
+        if rotate_flag:
+            cv2.imwrite('./Data/rgb_img/Scene2/'f'pic{count}.jpg',dst)
+            cv2.imwrite('./Data/thermal_img/Scene2/'f'pic{count+1}.jpg', frame_thermal)
+        # 基準から-90度になったとき
+        else: 
+            cv2.imwrite('./Data/rgb_img/Scene2/'f'pic{count}.jpg',dst)
+            cv2.imwrite('./Data/thermal_img/Scene2/'f'pic{count -1}.jpg', frame_thermal)
         count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
@@ -297,6 +343,8 @@ cap_rgb.release()
 cap_thermal.release()
 #out.release()
 cv2.destroyAllWindows()
+# Close port
+portHandler.closePort()
 
 """
 参考:
