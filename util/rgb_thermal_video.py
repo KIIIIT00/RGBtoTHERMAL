@@ -27,81 +27,16 @@ import os
 from natsort import natsorted
 import re
 import pyautogui
-
-"""
-モーターの設定
-"""
-
-############################################################################################
-from util.DXL import movejoint
-
-from dynamixel_sdk import *  # Uses Dynamixel SDK library
-
-# Protocol version
-PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamixel
-
-# Default setting
-DXL_ID                  = 10    # Dynamixel ID
-BAUDRATE                = 1000000
-DEVICENAME              = "COM3"  # Check which port is being used on your controller
-
-TORQUE_ENABLE           = 1    # Value for enabling the torque
-TORQUE_DISABLE          = 0    # Value for disabling the torque
-DXL_MINIMUM_POSITION_VALUE  = 100  # Dynamixel will rotate between this value
-DXL_MAXIMUM_POSITION_VALUE  = 4000  # and this value
-DXL_MOVING_STATUS_THRESHOLD = 10  # Dynamixel moving status threshold
-
-portHandler = PortHandler(DEVICENAME)
-packetHandler = PacketHandler(PROTOCOL_VERSION)
-
-# 150度基準から-90度の場所にあるとき，0
-rotate_flag = 0
-############################################################################################
-
-"""
-モーターの設定
-"""
-
-############################################################################################
-from util.DXL import movejoint
-
-from dynamixel_sdk import *  # Uses Dynamixel SDK library
-
-# Protocol version
-PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamixel
-
-# Default setting
-DXL_ID                  = 10    # Dynamixel ID
-BAUDRATE                = 1000000
-DEVICENAME              = "COM3"  # Check which port is being used on your controller
-
-TORQUE_ENABLE           = 1    # Value for enabling the torque
-TORQUE_DISABLE          = 0    # Value for disabling the torque
-DXL_MINIMUM_POSITION_VALUE  = 100  # Dynamixel will rotate between this value
-DXL_MAXIMUM_POSITION_VALUE  = 4000  # and this value
-DXL_MOVING_STATUS_THRESHOLD = 10  # Dynamixel moving status threshold
-
-portHandler = PortHandler(DEVICENAME)
-packetHandler = PacketHandler(PROTOCOL_VERSION)
-
-# 150度基準から-90度の場所にあるとき，0
-rotate_flag = 0
-############################################################################################
-
-
-"""
-モーターの設定
-"""
-
-############################################################################################
 import time
+
+"""
+モーターの設定
+"""
+
+#####################################################
+from dxl_module import DXL
+
 from dynamixel_sdk import *  # Uses Dynamixel SDK library
-import dxl_joint as DXL
-# Control table address
-ADDR_TORQUE_ENABLE       = 24
-ADDR_GOAL_POSITION       = 30
-ADDR_PRESENT_POSITION    = 36
-ADDR_GOAL_POSITION_SPEED = 32
 
 # Protocol version
 PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamixel
@@ -109,7 +44,7 @@ PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamix
 # Default setting
 DXL_ID                  = 10    # Dynamixel ID
 BAUDRATE                = 1000000
-DEVICENAME              = "COM4"  # Check which port is being used on your controller
+DEVICENAME              = "COM3"  # Check which port is being used on your controller
 
 TORQUE_ENABLE           = 1    # Value for enabling the torque
 TORQUE_DISABLE          = 0    # Value for disabling the torque
@@ -122,11 +57,12 @@ packetHandler = PacketHandler(PROTOCOL_VERSION)
 
 # 150度基準から-90度の場所にあるとき，0
 rotate_flag = 0
-############################################################################################
+#####################################################
+
 """
 関数定義
 """
-#############################################################################################
+#####################################################
 
 # 画像の大きさを合わせる
 def match_size(img_rgb, img_thermal):
@@ -144,15 +80,105 @@ def match_256x256(img_rgb, img_thermal):
     img_thermal = cv2.resize(img_thermal, dsize=(256, 256))
     return img_rgb, img_thermal
 
+# 画像の大きさを512x512にする
 def match_512x512(img_rgb, img_thermal):
     img_rgb = cv2.resize(img_rgb, dsize=(512, 512))
     img_thermal = cv2.resize(img_thermal, dsize=(512, 512))
     return img_rgb, img_thermal
 
+# IMG_SIZEの大きさに合わせる
+def match_custom(img_rgb, img_thermal):
+    img_rgb = cv2.resizeee(img_rgb, dsize=IMG_SIZE)
+    img_thermal = cv2.resize(img_thermal, dsize=IMG_SIZE)
+    return img_rgb, img_thermal
+
 # 上下反転させる
 def UpsideDown(img):
     return cv2.flip(cv2.flip(img, 0), 1)
-#############################################################################################
+
+# フォルダ内のファイルが存在するか
+def fileExist(folder):
+    return len(folder) != 0
+
+# フォルダ内のfile名になりうる次の番号を返す
+def fileNameNext(folder):
+    if fileExist(folder):
+        print('No')
+        count = 1
+    else:
+        # ディレクトリのファイルを取る
+        files = natsorted(folder)
+        lastfile = files[len(files) -1]
+        # 拡張子なしのファイル名の取得
+        lastfile_name = os.path.splitext(os.path.basename(lastfile))[0]
+        num = int(re.sub(r'[^0-9]', '', lastfile_name))
+        print(num)
+        count = num+ 1
+
+# waitKeyによって，操作を変える
+def waitKeyOperation(key):
+    # 録画をスタート
+    if key == ord('s') and not is_recording:
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out_rgb = cv2.VideoWriter(rgb_videos + f'{video_count}.mp4', fourcc, fps_rgb,VIDEO_SIZE, isColor=True)
+        out_thermal = cv2.VideoWriter(thermal_videos +f'{video_count}.mp4', fourcc, fps_rgb, VIDEO_SIZE)
+        # 録画を開始
+        is_recording = True
+        print("Recording started...")
+
+     # 動画のストップ
+    if key == ord('f') and is_recording:
+        is_recording = False
+        out_rgb.release()
+        out_thermal.release()
+        print("Recording stopped...")
+    
+    # 写真を保存
+    if key == ord('c'):
+        for i in range(2):
+            if not is_rotation:
+                is_rotation = dx.movejoint()
+                # 0.5秒待機
+                time.sleep(0.5)
+                cv2.imwrite(rgb_imgs+f'pic{img_count}.jpg',dst)
+                cv2.imwrite(thermal_imgs + f'pic{img_count + 1}.jpg', frame_thermal)
+                time.sleep(0.5)
+            else:
+                is_rotation = dx.movejoint()
+                # 0.5秒待機
+                time.sleep(0.5)
+                cv2.imwrite(rgb_imgs+f'pic{img_count}.jpg',dst)
+                cv2.imwrite(thermal_imgs + f'pic{img_count + 1}.jpg', frame_thermal)
+                time.sleep(0.5)
+        count += 1
+    
+    # Escで終了
+    if key == 27:
+        if is_recording:
+            out_rgb.release()
+            out_thermal.release()
+    
+    if is_recording:
+        # 録画中のフレームを書き込む
+        out_rgb.write(dst)
+        out_thermal.write(frame_thermal)
+
+# imgの歪み補正とトリミングを行う
+def undistortANDcrop(img):
+    img2 = img.copy()
+    h, w = img2.shape[:2]
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))     # 周りの画像の欠損を考慮した内部パラメータと，トリミング範囲を作成
+
+    dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)        # ここで歪み補正を行っている
+    ##cv2.imshow('before undistort', dst)
+
+    # crop the image
+    x,y,w,h = roi
+    dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
+    dst, frame_thermal = match_size(dst, frame_thermal)
+    return dst
+    
+#########################################################################
 # 画角合わせ
 #def resize_rgb(img_rgb):
     
@@ -198,45 +224,37 @@ is_recording = False
 # 1秒ごとに写真を保存するフラグ
 is_captureFrame = False
 
+# -90度の位置にいるときはFalse
+is_rotation = False
+
+####################　ユーザーが変更するところ ####################
+
 # 内部パラメータと歪み係数
 #mtx = np.array(["""***************ここにあらかじめ求めておいた内部パラメータを書く***************"""]).reshape(3,3)
 mtx = np.array([622.56592404, 0, 318.24063181, 0, 623.20968839, 245.37576884, 0, 0, 1]).reshape(3,3)
 #dist = np.array(["""***************ここにあらかじめ求めておいた歪み係数を書く***************"""])
 dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.25360545])
 
-files = os.listdir('./Data/rgb_img/Scene2/')
-files_video = os.listdir('./Data/rgb_video')
+# 保存するフォルダを明記
+rgb_imgs = os.listdir('./Data/rgb_img/Scene2/')
+thermal_imgs = os.listdir('./Data/thermal_img/Scene2/')
+rgb_videos = os.listdir('./Data/rgb_video/')
+thermal_videos = os.listdir('./Data/thmermal_video/')
+IMG_SIZE = (256, 256)
+VIDEO_SIZE = (256, 256)
+
+################################################################
+
 video_count = 0
 # print(len(files))
 #print(os.path.isfile('./Data/rgb_img/'))
-# ファイルが存在しない場合
-if len(files) == 0:
-    print('No')
-    count = 0
-else:
-    # ディレクトリのファイルを取る
-    # files = os.listdir('./Data/jpg/rgb_img')
-    files = natsorted(files)
-    lastfile = files[len(files) -1]
-    # 拡張子なしのファイル名の取得
-    lastfile_name = os.path.splitext(os.path.basename(lastfile))[0]
-    num = int(re.sub(r'[^0-9]', '', lastfile_name))
-    print(num)
-    count = num+ 1
-print(count)   
 
-# 動画ファイルが存在しない場合
-if len(files_video) == 0:
-    video_count = 0
-else:
-    files_video = natsorted(files_video)
-    lastvideofile = files_video[len(files_video) -1]
-    # 拡張なしのファイル名を取得
-    lastvideofile_name = os.path.splitext(os.path.basename(lastvideofile))[0]
-    video_num = int(re.sub(r'[^0-9]', '',lastvideofile))
-    print("video_num:" + str(video_num))
-    video_count = video_count + 1
-print("video_count:" + str(video_count))
+# 画像ファイルの次の名前と成りうる番号
+img_count = fileNameNext(rgb_imgs)
+print(img_count)   
+
+# 動画ファイルの次の名まえとなりうる番号
+video_count = fileNameNext(rgb_videos)
 
 idx = 0
 #dx = DXL
@@ -256,35 +274,9 @@ while True:
 
     # ロゴを削除するために、画像を抽出
     #frame_thermal = frame_thermal[0:425, 0:640]
-
-    # 動画のスタート
-    if key == ord('s') and not is_recording:
-        #fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out_rgb = cv2.VideoWriter('./Data/rgb_video/'f'{video_count}.mp4', fourcc, fps_rgb, (512, 512), isColor=True)
-        out_thermal = cv2.VideoWriter('./Data/thermal_video/'f'{video_count}.mp4', fourcc, fps_rgb, (512, 512))
-        # 録画を開始
-        is_recording = True
-        print("Recording started...")
-
-     # 動画のストップ
-    if key == ord('f') and is_recording:
-        is_recording = False
-        out_rgb.release()
-        out_thermal.release()
-        print("Recording stopped...")
-
-    img2 = frame_rgb.copy()
-    h, w = img2.shape[:2]
-    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))     # 周りの画像の欠損を考慮した内部パラメータと，トリミング範囲を作成
-
-    dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)        # ここで歪み補正を行っている
-    ##cv2.imshow('before undistort', dst)
-
-    # crop the image
-    x,y,w,h = roi
-    dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
-    dst, frame_thermal = match_size(dst, frame_thermal)
+    
+    # frame_imgの歪み補正とトリミングを行う
+    dst = undistortANDcrop(frame_rgb)
 
     # サーマルと画像の位置合わせ
     # dst = dst[51:446,31:585]
@@ -301,106 +293,18 @@ while True:
     #frame_thermal = frame_thermal[0:425, 0:640]
 
     # 画像の大きさを256x256にする
-    dst, frame_thermal = match_512x512(dst, frame_thermal)
+    dst, frame_thermal = match_custom(dst, frame_thermal)
 
-    # 1秒ごとの写真を保存するフラグをtrueに
-    if key ==  ord('i') and not is_captureFrame:
-        is_captureFrame = True
-
-    # 1秒ごとの写真を保存するフラグをFalseにすることで，その処理をやめる
-    if key == ord('q') and is_captureFrame:
-        is_captureFrame = False
+    # keyの値によって，操作を変更
+    waitKeyOperation(key)
     
-    # 1秒ごとの写真を保存する
-    """
-    if is_captureFrame:
-        # 0秒のフレームを保存
-        if cap_rgb.get(cv2.CAP_PROP_POS_FRAMES) == 1 and cap_thermal.get(cv2.CAP_PROP_POS_FRAMES) ==1:
-            cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
-            cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
-            count += 1
-
-        elif idx < cap_rgb.get(cv2.CAP_PROP_FPS):
-            continue
-        else: # 1秒ずつフレームを保存
-            cv2.imwrite('./Data/rgb_img/'f'pic{count}.png',dst)
-            cv2.imwrite('./Data/thermal_img/'f'pic{count}.png', frame_thermal)
-            count += 1
-            idx = 0
-        """
-            
-
-    # 写真の保存をする
-    if key == ord('c'):
-        cv2.imwrite('./Data/jpg/rgb_img/'f'pic{count}.jpg',dst)
-        cv2.imwrite('./Data/jpg/thermal_img/'f'pic{count}.jpg', frame_thermal)
-        count += 1
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
 
-    
-    if is_recording:
-        # 録画中のフレームを書き込む
-        out_rgb.write(dst)
-        out_thermal.write(frame_thermal)
-    """
-    if ret1:
-        #カメラの画像の出力
-        cv2.imshow('camera' , frame)
-
-        img = frame.copy()
-        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-        # Find the chess board corners　交点を見つける
-        ret2, corners = cv2.findChessboardCorners(gray, (yoko,tate),None)
-        # If found, add object points, image points (after refining them)　交点が見つかったなら描画
-        if ret2:
-            rvecs = []
-            tvecs = []
-            objpoints.append(objp)      # object point
-
-            corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-            imgpoints.append(corners2)
-
-            # パラメータの表示
-            # Draw and display the corners
-            img = cv2.drawChessboardCorners(img, (yoko,tate), corners2,ret2)     # 交点を見つけて印を付ける
-            cv2.imshow('drawChessboardCorners',img)     # 印の付いた画像を出力
-
-            ret3, rvecs, tvecs, _ = cv2.solvePnPRansac(objp, corners2, mtx, dist)      # ここで外部パラメータを求めている
-
-
-            ###
-            ###mtx：camera matrix，内部パラメータ
-            ###dist：distortion coefficients，歪み係数
-            ###rvecs：rotation vectors，外部パラメータの回転行列
-            ###tvecs：translation vectors，外部パラメータの並進ベクトル
-            ###
-
-            if ret3:
-                # 歪み補正の準備
-                img2 = frame.copy()
-                cv2.imshow('frame', img2)
-                h, w = img2.shapqe[:2]
-                newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))     # 周りの画像の欠損を考慮した内部パラメータと，トリミング範囲を作成
-
-                dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)        # ここで歪み補正を行っている
-
-                # crop the image
-                x,y,w,h = roi
-                dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
-                if is_recording:
-                    # 録画中のフレームを書き込む
-                    out.write(dst)
-                #カメラの画像の出力
-                #cv2.imshow('undistort' , dst)   # 歪み補正された画像を出力
-    """
     #繰り返し分から抜けるためのif文
     if key == 27:   #Escで終了
         break
-if is_recording:
-    out_rgb.release()
-    out_thermal.release()
+
 cap_rgb.release()
 cap_thermal.release()
 #out.release()
