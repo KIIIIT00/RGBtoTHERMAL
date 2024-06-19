@@ -33,8 +33,8 @@ DXL_MOVING_STATUS_THRESHOLD = 10  # Dynamixel moving status threshold
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
 
-# 150度基準から-90度の場所にあるとき，0
-rotate_flag = 0
+# 150度基準から-90度の場所にあるとき，False
+rotate_flag = False
 
 class DXL():
     def __init__(self):
@@ -85,13 +85,13 @@ class DXL():
         dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION_SPEED, 200)
 
         # 150度基準から-90度の時
-        if rotate_flag == 0:
+        if not rotate_flag:
             dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.DeqToPos(90))
-            rotate_flag = 1
+            rotate_flag = True
         # 150度基準から90度の時
         else:
             dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.DeqToPos(-90))
-            rotate_flag = 0
+            rotate_flag = False
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
         elif dxl_error != 0:
