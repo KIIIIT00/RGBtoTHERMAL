@@ -22,7 +22,7 @@ PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamix
 # Default setting
 DXL_ID                  = 10    # Dynamixel ID
 BAUDRATE                = 1000000
-DEVICENAME              = "COM4"  # Check which port is being used on your controller
+DEVICENAME              = "COM3"  # Check which port is being used on your controller
 
 TORQUE_ENABLE           = 1    # Value for enabling the torque
 TORQUE_DISABLE          = 0    # Value for disabling the torque
@@ -75,34 +75,40 @@ class DXL():
     
     # 90か-90度からPositionに変換する
     @staticmethod
-    def DeqToPos(deq):
+    def Deq2Pos(deq):
         return (int)(512 + 1024/300 * deq)
     
     # 関節モードを動かす
-    def moveJoint(self):
+    def MoveJoint(self, deq):
         global rotate_flag
         # 関節モードの速度
         dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION_SPEED, 300)
+        dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.Deq2Pos(deq))
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
+        elif dxl_error != 0:
+            print("%s" % packetHandler.getRxPacketError(dxl_error))
 
+        """
         # 150度基準から-90度の時
         if rotate_flag == 0:
-            dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.DeqToPos(90))
+            dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.Deq2Pos(90))
             rotate_flag = 1
         # 150度基準から90度の時
         else:
-            dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.DeqToPos(-90))
+            dxl_comm_result, dxl_error = packetHandler.write2ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_POSITION, DXL.Deq2Pos(-90))
             rotate_flag = 0
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % packetHandler.getTxRxResult(dxl_comm_result))
         elif dxl_error != 0:
             print("%s" % packetHandler.getRxPacketError(dxl_error))
-        
+        """
         # 後から，現在の位置がわかるように，状態の変数を返す
         return rotate_flag
     
+    
+    
 
-
-"""
 if __name__ == "__main__":
 # Write goal position
     dx = DXL()
@@ -110,9 +116,9 @@ if __name__ == "__main__":
         if cv2.waitKey(1) & 0xff == 27:
             break
    
-        dx.moveJoint()
+        dx.MoveJoint(90)
         time.sleep(2)
-        dx.moveJoint()
+        dx.MoveJoint(-90)
         time.sleep(2)
 
     # Write goal position
@@ -144,5 +150,5 @@ cv2.destroyAllWindows()
 # Close port
 portHandler.closePort()
 
-"""
+
 

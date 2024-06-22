@@ -1,3 +1,5 @@
+# カメラの設置の機構が変わったので，ボツになる
+
 """
 rgbカメラの動画とサーマルカメラの動画を取得する
 そのときの画像も取得する
@@ -18,7 +20,7 @@ FLIRのロゴを消すために, 640x425にする
 <やるべきこと>
 ・モータを動かした後の視野の位置合わせ
 ・キーボード入力cを毎回しなくても，回転させたら，キャプションするものを作る
-
+・カメラの動作を止めずに，モータを回す
 """
 
 import numpy as np
@@ -28,6 +30,8 @@ from natsort import natsorted
 import re
 import pyautogui
 import time
+import asyncio
+import threading
 
 """
 モーターの設定
@@ -46,22 +50,62 @@ DXL_ID                  = 10    # Dynamixel ID
 BAUDRATE                = 1000000
 DEVICENAME              = "COM3"  # Check which port is being used on your controller
 
+ADDR_TORQUE_ENABLE       = 24
+ADDR_GOAL_POSITION       = 30
+ADDR_PRESENT_POSITION    = 36
+ADDR_GOAL_POSITION_SPEED = 32
+ADDR_MOVING_STATE        = 46
+
 TORQUE_ENABLE           = 1    # Value for enabling the torque
 TORQUE_DISABLE          = 0    # Value for disabling the torque
-DXL_MINIMUM_POSITION_VALUE  = 100  # Dynamixel will rotate between this value
-DXL_MAXIMUM_POSITION_VALUE  = 4000  # and this value
+DXL_MINIMUM_POSITION_VALUE  = -90  # Dynamixel will rotate between this value
+DXL_MAXIMUM_POSITION_VALUE  = 90 # and this value
 DXL_MOVING_STATUS_THRESHOLD = 10  # Dynamixel moving status threshold
 
 portHandler = PortHandler(DEVICENAME)
 packetHandler = PacketHandler(PROTOCOL_VERSION)
-
-#####################################################
-
+GOAL_POSITIONS = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]
+########################################3#############
 
 """
 関数定義
 """
 #####################################################
+# 非同期関数
+async def DynamixelMoving():
+    # Read moving status
+    dxl_moving = dx.MovingState()
+
+    if dxl_moving == 0:
+        print("Save IMG")
+        return True
+
+    await asyncio.sleep(2)  # 2秒停止
+    return False
+
+# 引数に与えた秒数待機する
+def Stop_For_Seconds(seconds):
+    print("Waiting for " +f'{seconds}' + "seconds ....")
+    event = threading.Event()
+    event.wait(seconds) # seconds秒待つ
+
+# Dynamixelの動きの合わせて写真を保存する
+def Dynamixel_SaveImg_Process():
+    print("Dynamixel SaveImg Process Started")
+    for goal_position in GOAL_POSITIONS:
+            #print(goal_position)
+            # ある角度まで動かす
+            dx.MoveJoint(goal_position)
+            
+            while True:
+                # Read moving status
+                dxl_moving = dx.MovingState()
+
+                if dxl_moving == 0:
+                    print("Save IMG")
+                    break
+                
+                Stop_For_Seconds(2)
 
 # 画像の大きさを合わせる
 def Match_Size(img_rgb, img_thermal):
@@ -145,7 +189,6 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
     # 回転を開始する
     # 回転をしているときは，停止する
     if key == ord('c') and not push_key:
-
         push_key = True
         #print(push_key)
     
@@ -153,13 +196,35 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
         push_key = False
         #print(push_key)
     
+    
+        """
+        for goal_position in GOAL_POSITIONS:
+            #print(goal_position)
+            # ある角度まで動かす
+            dx.MoveJoint(goal_position)
+            
+            while True:
+                # Read moving status
+                dxl_moving = dx.MovingState()
+
+                if dxl_moving == 0:
+                    print("Save IMG")
+                    break
+                
+                if not time_count:
+                    target_time = time.time() + 2
+                    while time.time() < target_time:
+                        pass
+                """
+        
+    
     """
     # 回転
     if push_key:
         img_count = GetImgCount()
         print(is_rotation)
         if not is_rotation:
-            is_rotation = dx.movejoint()
+            is_rotation = dx.MoveJoint()
             # 0.5秒待機
             time.sleep(2)
                 
@@ -168,7 +233,7 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
             #cv2.imwrite(THERMAL_FILES_IMGS + f'pic{img_count + 1}.jpg', frame_thermal)
             time.sleep(1)
         else:
-            is_rotation = dx.movejoint()
+            is_rotation = dx.MoveJoint()
             # 0.5秒待機
             time.sleep(2)
             #cv2.imwrite(RGB_FILES_IMGS+f'pic{img_count}.jpg',dst)
@@ -176,7 +241,8 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
             time.sleep(10)
         img_count += 1
         SetImgCount(img_count)
-        """
+    """
+
     # Escで終了
     if key == 27:
         if is_recording:
@@ -187,6 +253,7 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
         # 録画中のフレームを書き込む
         out_rgb.write(dst)
         out_thermal.write(frame_thermal)
+
     return is_recording, is_rotation, push_key
 
 # imgの歪み補正とトリミングを行う
@@ -262,6 +329,9 @@ is_rotation = False
 
 # キーボード"c"を押したかどうか
 push_key = False
+
+# タイムカウントをしたかどうか
+time_count = False
 ####################　ユーザーが変更するところ ####################
 
 # 内部パラメータと歪み係数
@@ -303,7 +373,7 @@ video_count = FileNameNext(rgb_videos)
 print('videocount:'f'{video_count}')
 
 idx = 0
-#dx = DXL
+
 #繰り返しのためのwhile文
 dx = DXL()
 
@@ -344,31 +414,61 @@ while True:
     # keyの値によって，操作を変更
     is_recording, is_rotation, push_key = WaitKeyOperation(key, is_recording, is_rotation, push_key)
     
+    thread = threading.Thread(target=Dynamixel_SaveImg_Process)
+    thread.start()
+    
     # 回転
+    """
     if push_key:
-        img_count = GetImgCount()
-        #print(is_rotation)
+        print(is_rotation)
+        is_moving = dx.MovingState()
+        if is_moving == 0:
+            print("After Moving")
+            
+        else:
+            print("Moving Now")
+    """
+    """
+    if push_key:
+        print(is_rotation)
 
         if not is_rotation:
-            is_rotation = dx.movejoint()
-            delay(2)
+            is_rotation = dx.MoveJoint()
+            is_moving = dx.MovingState()
+            if is_moving == 1:
+                print("Movinf Now")
+            else:
+                print("Not Moving")
+            #delay(2)
             #print(img_count)
             #cv2.imwrite(RGB_FILES_IMGS+f'pic{img_count}.jpg',dst)
             #cv2.imwrite(THERMAL_FILES_IMGS + f'pic{img_count + 1}.jpg', frame_thermal)
-            delay(2)
+            img_count += 1
+            #delay(2)
         else:
-            is_rotation = dx.movejoint()
+            is_rotation = dx.MoveJoint()
+            is_moving = dx.MovingState()
+            if is_moving == 1:
+                print("Movinf Now")
+            else:
+                print("Not Moving")
+            #delay(2)
             # 0.5秒待機
-            delay(2)
+            #delay(2)
             #cv2.imwrite(RGB_FILES_IMGS+f'pic{img_count}.jpg',dst)
             #cv2.imwrite(THERMAL_FILES_IMGS + f'pic{img_count - 1}.jpg', frame_thermal)
-            delay(2)
-        img_count += 1
-        SetImgCount(img_count)
-    
+            img_count += 1
+            #delay(2)
+        #SetImgCount(img_count)
+    """
 
     cv2.imshow("undistort", dst)
     cv2.imshow("thermal", frame_thermal)
+    # 一定時間ごとにゴール位置を切り替える（ここではポーリングを使用）
+    for _ in range(20):  # 2秒間（20 x 0.1秒）のポーリング
+        event = threading.Event()
+        event.wait(0.1)  # 0.1秒待つ
+    thread.join()
     
     #繰り返し分から抜けるためのif文
     if key == 27:   #Escで終了
