@@ -376,7 +376,7 @@ def main():
         dxl.set_goal_position(target_position)
 
         # Switch goal position at regular intervals (polling)
-        for _ in range(50):  # Polling for 2 seconds (20 x 0.1 seconds)
+        for _ in range(60):  # Polling for 2 seconds (20 x 0.1 seconds)
             event = threading.Event()
             event.wait(0.1)  # wait for 0.1 seconds
 
