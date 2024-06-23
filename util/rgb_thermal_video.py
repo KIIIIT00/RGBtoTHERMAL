@@ -30,8 +30,11 @@ from natsort import natsorted
 import re
 import pyautogui
 import time
+<<<<<<< HEAD
 import asyncio
 import threading
+=======
+>>>>>>> master
 
 """
 モーターの設定
@@ -49,12 +52,15 @@ PROTOCOL_VERSION        = 1  # See which protocol version is used in the Dynamix
 DXL_ID                  = 10    # Dynamixel ID
 BAUDRATE                = 1000000
 DEVICENAME              = "COM3"  # Check which port is being used on your controller
+<<<<<<< HEAD
 
 ADDR_TORQUE_ENABLE       = 24
 ADDR_GOAL_POSITION       = 30
 ADDR_PRESENT_POSITION    = 36
 ADDR_GOAL_POSITION_SPEED = 32
 ADDR_MOVING_STATE        = 46
+=======
+>>>>>>> master
 
 TORQUE_ENABLE           = 1    # Value for enabling the torque
 TORQUE_DISABLE          = 0    # Value for disabling the torque
@@ -67,10 +73,18 @@ packetHandler = PacketHandler(PROTOCOL_VERSION)
 GOAL_POSITIONS = [DXL_MINIMUM_POSITION_VALUE, DXL_MAXIMUM_POSITION_VALUE]
 ########################################3#############
 
+<<<<<<< HEAD
+=======
+# 150度基準から-90度の場所にあるとき，0
+rotate_flag = 0
+#####################################################
+
+>>>>>>> master
 """
 関数定義
 """
 #####################################################
+<<<<<<< HEAD
 # 非同期関数
 async def DynamixelMoving():
     # Read moving status
@@ -106,6 +120,8 @@ def Dynamixel_SaveImg_Process():
                     break
                 
                 Stop_For_Seconds(2)
+=======
+>>>>>>> master
 
 # 画像の大きさを合わせる
 def Match_Size(img_rgb, img_thermal):
@@ -124,14 +140,23 @@ def Match_256x256(img_rgb, img_thermal):
     return img_rgb, img_thermal
 
 # 画像の大きさを512x512にする
+<<<<<<< HEAD
 def Match_512x512(img_rgb, img_thermal):
+=======
+def match_512x512(img_rgb, img_thermal):
+>>>>>>> master
     img_rgb = cv2.resize(img_rgb, dsize=(512, 512))
     img_thermal = cv2.resize(img_thermal, dsize=(512, 512))
     return img_rgb, img_thermal
 
 # IMG_SIZEの大きさに合わせる
+<<<<<<< HEAD
 def Match_custom(img_rgb, img_thermal):
     img_rgb = cv2.resize(img_rgb, dsize=IMG_SIZE)
+=======
+def match_custom(img_rgb, img_thermal):
+    img_rgb = cv2.resizeee(img_rgb, dsize=IMG_SIZE)
+>>>>>>> master
     img_thermal = cv2.resize(img_thermal, dsize=IMG_SIZE)
     return img_rgb, img_thermal
 
@@ -140,6 +165,7 @@ def UpsideDown(img):
     return cv2.flip(cv2.flip(img, 0), 1)
 
 # フォルダ内のファイルが存在するか
+<<<<<<< HEAD
 def FileExist(folder):
     return len(folder) != 0
 
@@ -147,6 +173,15 @@ def FileExist(folder):
 def FileNameNext(folder):
     if not FileExist(folder):
         #print('No')
+=======
+def fileExist(folder):
+    return len(folder) != 0
+
+# フォルダ内のfile名になりうる次の番号を返す
+def fileNameNext(folder):
+    if fileExist(folder):
+        print('No')
+>>>>>>> master
         count = 1
     else:
         # ディレクトリのファイルを取る
@@ -157,6 +192,7 @@ def FileNameNext(folder):
         num = int(re.sub(r'[^0-9]', '', lastfile_name))
         print(num)
         count = num+ 1
+<<<<<<< HEAD
     return count
 
 # img_countの数を取得する
@@ -175,6 +211,16 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out_rgb = cv2.VideoWriter(RGB_FILES_VIDEOS + f'{video_count}.mp4', fourcc, fps_rgb,VIDEO_SIZE, isColor=True)
         out_thermal = cv2.VideoWriter(THERMAL_FILES_VIDEOS +f'{video_count}.mp4', fourcc, fps_rgb, VIDEO_SIZE)
+=======
+
+# waitKeyによって，操作を変える
+def waitKeyOperation(key):
+    # 録画をスタート
+    if key == ord('s') and not is_recording:
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out_rgb = cv2.VideoWriter(rgb_videos + f'{video_count}.mp4', fourcc, fps_rgb,VIDEO_SIZE, isColor=True)
+        out_thermal = cv2.VideoWriter(thermal_videos +f'{video_count}.mp4', fourcc, fps_rgb, VIDEO_SIZE)
+>>>>>>> master
         # 録画を開始
         is_recording = True
         print("Recording started...")
@@ -186,6 +232,7 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
         out_thermal.release()
         print("Recording stopped...")
     
+<<<<<<< HEAD
     # 回転を開始する
     # 回転をしているときは，停止する
     if key == ord('c') and not push_key:
@@ -243,6 +290,27 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
         SetImgCount(img_count)
     """
 
+=======
+    # 写真を保存
+    if key == ord('c'):
+        for i in range(2):
+            if not is_rotation:
+                is_rotation = dx.movejoint()
+                # 0.5秒待機
+                time.sleep(0.5)
+                cv2.imwrite(rgb_imgs+f'pic{img_count}.jpg',dst)
+                cv2.imwrite(thermal_imgs + f'pic{img_count + 1}.jpg', frame_thermal)
+                time.sleep(0.5)
+            else:
+                is_rotation = dx.movejoint()
+                # 0.5秒待機
+                time.sleep(0.5)
+                cv2.imwrite(rgb_imgs+f'pic{img_count}.jpg',dst)
+                cv2.imwrite(thermal_imgs + f'pic{img_count + 1}.jpg', frame_thermal)
+                time.sleep(0.5)
+        count += 1
+    
+>>>>>>> master
     # Escで終了
     if key == 27:
         if is_recording:
@@ -254,10 +322,15 @@ def WaitKeyOperation(key,is_recording, is_rotation, push_key):
         out_rgb.write(dst)
         out_thermal.write(frame_thermal)
 
+<<<<<<< HEAD
     return is_recording, is_rotation, push_key
 
 # imgの歪み補正とトリミングを行う
 def UndistortAndCrop(img):
+=======
+# imgの歪み補正とトリミングを行う
+def undistortANDcrop(img):
+>>>>>>> master
     img2 = img.copy()
     h, w = img2.shape[:2]
     newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))     # 周りの画像の欠損を考慮した内部パラメータと，トリミング範囲を作成
@@ -268,6 +341,7 @@ def UndistortAndCrop(img):
     # crop the image
     x,y,w,h = roi
     dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
+<<<<<<< HEAD
     return dst
 
 # seconds秒遅延させる
@@ -275,6 +349,11 @@ def delay(seconds):
     start_time = time.time()  # 現在の時刻を取得
     while (time.time() - start_time) < seconds:  # 指定した秒数が経過するまでループ
         pass
+=======
+    dst, frame_thermal = match_size(dst, frame_thermal)
+    return dst
+    
+>>>>>>> master
 #########################################################################
 # 画角合わせ
 #def resize_rgb(img_rgb):
@@ -324,6 +403,7 @@ global is_captureFrame
 is_captureFrame = False
 
 # -90度の位置にいるときはFalse
+<<<<<<< HEAD
 global is_rotation
 is_rotation = False
 
@@ -332,6 +412,10 @@ push_key = False
 
 # タイムカウントをしたかどうか
 time_count = False
+=======
+is_rotation = False
+
+>>>>>>> master
 ####################　ユーザーが変更するところ ####################
 
 # 内部パラメータと歪み係数
@@ -341,6 +425,7 @@ mtx = np.array([622.56592404, 0, 318.24063181, 0, 623.20968839, 245.37576884, 0,
 dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.25360545])
 
 # 保存するフォルダを明記
+<<<<<<< HEAD
 global rgb_imgs
 global thermal_imgs
 global rgb_videos
@@ -355,6 +440,13 @@ thermal_imgs = os.listdir(THERMAL_FILES_IMGS)
 rgb_videos = os.listdir(RGB_FILES_VIDEOS)
 thermal_videos = os.listdir(THERMAL_FILES_VIDEOS)
 IMG_SIZE = (512, 512)
+=======
+rgb_imgs = os.listdir('./Data/rgb_img/Scene2/')
+thermal_imgs = os.listdir('./Data/thermal_img/Scene2/')
+rgb_videos = os.listdir('./Data/rgb_video/')
+thermal_videos = os.listdir('./Data/thmermal_video/')
+IMG_SIZE = (256, 256)
+>>>>>>> master
 VIDEO_SIZE = (256, 256)
 
 ################################################################
@@ -363,6 +455,7 @@ video_count = 0
 # print(len(files))
 #print(os.path.isfile('./Data/rgb_img/'))
 
+<<<<<<< HEAD
 global img_count
 # 画像ファイルの次の名前と成りうる番号
 img_count = FileNameNext(rgb_imgs)
@@ -371,6 +464,14 @@ print(img_count)
 # 動画ファイルの次の名まえとなりうる番号
 video_count = FileNameNext(rgb_videos)
 print('videocount:'f'{video_count}')
+=======
+# 画像ファイルの次の名前と成りうる番号
+img_count = fileNameNext(rgb_imgs)
+print(img_count)   
+
+# 動画ファイルの次の名まえとなりうる番号
+video_count = fileNameNext(rgb_videos)
+>>>>>>> master
 
 idx = 0
 
@@ -392,7 +493,11 @@ while True:
     #frame_thermal = frame_thermal[0:425, 0:640]
     
     # frame_imgの歪み補正とトリミングを行う
+<<<<<<< HEAD
     dst = UndistortAndCrop(frame_rgb)
+=======
+    dst = undistortANDcrop(frame_rgb)
+>>>>>>> master
 
     # サーマルと画像の位置合わせ
     # dst = dst[51:446,31:585]
@@ -409,6 +514,7 @@ while True:
     #frame_thermal = frame_thermal[0:425, 0:640]
 
     # 画像の大きさを256x256にする
+<<<<<<< HEAD
     dst, frame_thermal = Match_custom(dst, frame_thermal)
 
     # keyの値によって，操作を変更
@@ -470,6 +576,16 @@ while True:
         event.wait(0.1)  # 0.1秒待つ
     thread.join()
     
+=======
+    dst, frame_thermal = match_custom(dst, frame_thermal)
+
+    # keyの値によって，操作を変更
+    waitKeyOperation(key)
+    
+    cv2.imshow("undistort", dst)
+    cv2.imshow("thermal", frame_thermal)
+
+>>>>>>> master
     #繰り返し分から抜けるためのif文
     if key == 27:   #Escで終了
         break
