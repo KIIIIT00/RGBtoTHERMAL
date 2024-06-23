@@ -4,6 +4,7 @@
 
 サーマルとRGB画像を格納する
 この時に，視野の位置，画像サイズ，画像の向きを合わせる
+キーボード'q'を押したときに
 """
 
 # インポート
@@ -11,8 +12,12 @@ import cv2
 import threading
 from dynamixel_sdk import *                    # Uses Dynamixel SDK library
 from Dxl import Dxl
+import numpy as np
+import os
+from natsort import natsorted
+import re
 
-# Default setting
+############################ 初期設定 ############################
 DXL_MINIMUM_POSITION_VALUE = Dxl.deg_2_pos(-90)       
 DXL_MAXIMUM_POSITION_VALUE = Dxl.deg_2_pos(90)        
 DXL_ID = 12                                   # Dynamixel ID: 1
@@ -20,37 +25,175 @@ DEVICENAME = "COM3"                   # Check which port is being used on your c
                                                # ex) Windows: "COM1"   Linux: "/dev/ttyUSB0" Mac: "/dev/tty.usbserial-*"
 DXL_MOVING_STATUS_THRESHOLD = 20               # Dynamixel moving status threshold
 
-framecount = 0
+# 内部パラメータと歪み係数
+#mtx = np.array(["""***************ここにあらかじめ求めておいた内部パラメータを書く***************"""]).reshape(3,3)
+mtx = np.array([622.56592404, 0, 318.24063181, 0, 623.20968839, 245.37576884, 0, 0, 1]).reshape(3,3)
+#dist = np.array(["""***************ここにあらかじめ求めておいた歪み係数を書く***************"""])
+dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.25360545])
+
+RGB_FILES_IMGS = './Data/rgb_img/Scene2/'
+THERMAL_FILES_IMGS = './Data/thermal_img/Scene2/'
+RGB_FILES_VIDEOS = './Data/rgb_video/'
+THERMAL_FILES_VIDEOS = './Data/thermal_video/'
+
+rgb_imgs = os.listdir(RGB_FILES_IMGS)
+thermal_imgs = os.listdir(THERMAL_FILES_IMGS)
+rgb_videos = os.listdir(RGB_FILES_VIDEOS)
+thermal_videos = os.listdir(THERMAL_FILES_VIDEOS)
+IMG_SIZE = (512, 512)
+VIDEO_SIZE = (256, 256)
+
+##############################################################
+tate = 7    # 縦の交点の個数
+yoko = 10   # 横の交点の個数
+
+# termination criteria
+criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+
+# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
+objp = np.zeros((tate*yoko,3), np.float32)
+objp[:,:2] = np.mgrid[0:yoko,0:tate].T.reshape(-1,2)
+
+# Arrays to store object points and image points from all the images.
+objpoints = [] # 3d point in real world space
+imgpoints = [] # 2d points in image plane.
+
+# フレームのカウント
+frame_count = 1
+# サーマルのカウント
+thermal_count = 2
+
+# サーマルカメラが上にあるか
+isThermalUpper = True
+
+# キーボード'q'を入力したか
+isPushKeyboard = False
+
+# プログラムを終了する
+isExit = False
 #xl = Dxl(DXL_ID, DEVICENAME)
+
+"""
+関数定義
+"""
+def file_exist(folder):
+    """
+    フォルダ内にファイルが存在するかどうか
+
+    Parameters
+    -------------
+    folder : str
+        対象フォルダのパス
+
+    Returns
+    -------------
+    isExist : boolean
+        ファイルが存在するとき,True
+        ファイルが存在しないとき,False
+    """
+    isExist = len(folder) != 0
+    return isExist
+
+def FileNameNext(folder):
+    """
+    フォルダ内の連番になっているファイルの次の連番番号を返す
+
+    Parameters
+    -------------
+    folder : str
+        対象のフォルダのパス
+    
+    Returns
+    -------------
+    count : int
+        次のファイルの番号を返す
+    """
+    if not file_exist(folder):
+        #print('No')
+        count = 1
+    else:
+        # ディレクトリのファイルを取る
+        files = natsorted(folder)
+        lastfile = files[len(files) -1]
+        # 拡張子なしのファイル名の取得
+        lastfile_name = os.path.splitext(os.path.basename(lastfile))[0]
+        num = int(re.sub(r'[^0-9]', '', lastfile_name))
+        print(num)
+        count = num+ 1
+    return count
 
 def save_rgb_image(frame):
     """
     rgb_frameの写真を保存する
 
     Parameters
-
+    -------------
+    frame : ndarray
+        rgb映像のフレーム
     """
-    global framecount
-    filename = 'rgb' + f'{framecount}' + '.jpg'
+    global frame_count
+    global thermal_count
+    filename = 'rgb' + f'{frame_count}' + '.jpg'
+    if frame_count % 2 == 1:
+        thermal_count = frame_count + 1
+    else:
+        thermal_count = frame_count - 1
     cv2.imwrite(filename, frame)
     print(f"Image saved as {filename}")
-    framecount += 1
+    
 
 def save_thermal_image(frame):
     """
     thermal_frameの写真を保存する
 
     Parameters
-
+    --------------
+    frame : ndarray
+        thermal映像のフレーム
     """
-    global framecount
-    filename = 'thermal' + f'{framecount}' + '.jpg'
+    global frame_count
+    global thermal_count
+    global isThermalUpper
+
+    filename = 'thermal' + f'{thermal_count}' + '.jpg'
     cv2.imwrite(filename, frame)
     print(f"Image saved as {filename}")
-    framecount += 1
 
+def save_rgb_and_thermal_image(img_rgb, img_thermal):
+    """
+    rgb画像とサーマル画像を保存する
 
-def Match_Size(img_rgb, img_thermal):
+    Parameters
+    --------------
+    img_rgb : ndarray
+        img映像のフレーム
+    img_thermal : ndarray
+        thermal映像のフレーム
+    """
+    global frame_count
+    global isThermalUpper
+    save_rgb_image(img_rgb)
+    save_thermal_image(img_thermal)
+    frame_count += 1
+
+def match_size(img_rgb, img_thermal):
+    """
+    rgb画像とサーマル画像の大きさを合わせる
+
+    Parameters
+    --------------
+    img_rgb : ndarry
+        rgb画像の配列
+    img_thermal : ndarray
+        thermal画像の配列
+    
+    Returns
+    --------------
+    img_rgb : ndarray
+        画像の大きさをそろえたimg_rgb
+    img_themral : ndarray
+        画像の大きさをそろえたimg_thermal
+    """
     h_rgb, w_rgb, _ = img_rgb.shape
     h_thermal, w_thermal, _ = img_thermal.shape
     h_max = max([h_rgb, h_thermal])
@@ -59,7 +202,79 @@ def Match_Size(img_rgb, img_thermal):
     img_thermal = cv2.resize(img_thermal, dsize=(w_max, h_max))
     return img_rgb, img_thermal
 
+def match_custom(img_rgb, img_thermal):
+    """
+    rgb画像とサーマル画像の大きさをIMG_SIZEに合わせる
+
+    Parameters
+    --------------
+    img_rgb : ndarray
+        rgb画像の配列
+    img_thermal : ndarray
+        サーマル画像の配列
+
+    Returns
+    --------------
+    img_rgb : ndarray
+        画像のサイズがIMG_SIZEになったrgb画像の配列
+    img_thermal : ndarray
+        画像のサイズがIMG_SIZEになったサーマル画像の配列
+    """
+    img_rgb = cv2.resize(img_rgb, dsize=IMG_SIZE)
+    img_thermal = cv2.resize(img_thermal, dsize=IMG_SIZE)
+    return img_rgb, img_thermal
+
+def undistort_and_crop(img):
+    """
+    imgの歪み補正とトリミングを行う
+
+    Parameters
+    --------------
+    img : ndarray
+        歪み補正を行う画像
+    
+    Returns
+    --------------
+    dst : ndarray
+        歪み補正とトリミングを行った後の画像
+    """
+    img2 = img.copy()
+    h, w = img2.shape[:2]
+    newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))     # 周りの画像の欠損を考慮した内部パラメータと，トリミング範囲を作成
+
+    dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)        # ここで歪み補正を行っている
+    ##cv2.imshow('before undistort', dst)
+
+    # crop the image
+    x,y,w,h = roi
+    dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
+    return dst
+
+def upside_down(img):
+    """
+    imgの画像を上下左右反転させて,返す
+
+    Parameters
+    --------------
+    img : ndarray
+        対象の画像の配列
+
+    Returns
+    --------------
+    upside_down_img : ndarray
+        対象の画像に対して上下左右反転させた後の画像の配列
+    """
+    upside_down_img = cv2.flip(cv2.flip(img, 0), 1)
+    return upside_down_img
+
 def process(dxl):
+    """
+    非同期関数
+    """
+    global frame_count
+    global isPushKeyboard
+    global isExit
+
     cap_rgb = cv2.VideoCapture(0)  # 0 is the default camera
     cap_thermal = cv2.VideoCapture(1)
     if not cap_rgb.isOpened():
@@ -74,27 +289,50 @@ def process(dxl):
     moving = False
     while True:
         dxl_present_position = dxl.print_present_position()
+
+        # 現在地が-90度のとき，サーマルは下にある
+        if dxl_present_position == DXL_MINIMUM_POSITION_VALUE:
+            isThermalUpper = False
+        else:
+            isThermalUpper = True
         moving = dxl.print_moving_state()
 
         ret_rgb, frame_rgb = cap_rgb.read()
         ret_thermal, frame_thermal = cap_thermal.read()
+        frame_rgb = undistort_and_crop(frame_rgb)
+        if isThermalUpper:
+            frame_rgb = upside_down(frame_rgb)
+            frame_thermal = upside_down(frame_thermal)
+        
         if ret_rgb and ret_thermal:
-            cv2.imshow('Camera', frame_rgb)
+            cv2.imshow('RGB', frame_rgb)
             cv2.imshow('Thermal', frame_thermal)
 
         # Check if motor is moving
         #if abs(dxl_present_position - target_position) <= DXL_MOVING_STATUS_THRESHOLD:
         if moving == 0:
+            if isThermalUpper:
+                isThermalUpper = False
+            else:
+                isThermalUpper = True
             # ブレをなくす
-            stop_for_seconds(1)
-            save_rgb_image(frame_rgb)
-            save_thermal_image(frame_thermal)
+            stop_for_seconds(2)
+            save_rgb_and_thermal_image(frame_rgb, frame_thermal)
             stop_for_seconds(3)
             #moving = False
         #else:
             #moving = True
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            isPushKeyboard = True
+            print(frame_count)
+            print("AND1:" + f'{isPushKeyboard & (frame_count % 2 == 0)}')
+            
+        print("isPushKeyboard:"+f'{isPushKeyboard}')
+        print("AND:" + f'{isPushKeyboard & (frame_count % 2 == 0)}')
+
+        if isPushKeyboard and (frame_count % 2 == 0):
+            isExit = True
             break
 
     print("Process resumed")
@@ -107,13 +345,17 @@ def stop_for_seconds(seconds):
     seconds秒停止
 
     Parameters
-    
+    --------------
+    seconds : float
+        停止させる秒数
     """
     print("Waiting for " + f'{seconds}' + " seconds...")
     event = threading.Event()
     event.wait(seconds)  # wait for specified seconds
 
 def main():
+    global isExit
+
     # dynamixel_moduleのDXLクラスの呼び出し
     dxl = Dxl(DXL_ID, DEVICENAME)
 
@@ -134,12 +376,14 @@ def main():
         dxl.set_goal_position(target_position)
 
         # Switch goal position at regular intervals (polling)
-        for _ in range(40):  # Polling for 2 seconds (20 x 0.1 seconds)
+        for _ in range(50):  # Polling for 2 seconds (20 x 0.1 seconds)
             event = threading.Event()
             event.wait(0.1)  # wait for 0.1 seconds
 
         # Exit main loop condition
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+        #    break
+        if isExit:
             break
 
     # Wait for the thread to finish
