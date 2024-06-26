@@ -18,6 +18,8 @@ from natsort import natsorted
 import re
 
 ############################ 初期設定 ############################
+os.environ["OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS"] = "0"
+
 DXL_MINIMUM_POSITION_VALUE = Dxl.deg_2_pos(-90)       
 DXL_MAXIMUM_POSITION_VALUE = Dxl.deg_2_pos(90)        
 DXL_ID = 12                                   # Dynamixel ID: 1
@@ -267,7 +269,42 @@ def upside_down(img):
     upside_down_img = cv2.flip(cv2.flip(img, 0), 1)
     return upside_down_img
 
-def process(dxl):
+def open_camera():
+    """
+    Webカメラを起動する
+
+    Returns
+    --------------
+    cap_rgb : RGBカメラのVideoCapture
+    cap_thermal : 赤外線カメラのVideoCapture
+    """
+    cap_rgb = cv2.VideoCapture(1)  # 0 is the default camera
+    cap_thermal = cv2.VideoCapture(0)
+    if not cap_rgb.isOpened():
+        print("Cannot open RGB camera")
+        return
+    if not cap_thermal.isOpened():
+        print("Cannot open Thermal camera")
+    return cap_rgb, cap_thermal
+
+def cut_logo(frame_thermal):
+    """
+    FLIRのロゴを消す
+    
+    Parameters
+    --------------
+    frame_thermal : ndarray
+        FLIRのロゴを削除する赤外線カメラ(640x512)
+
+    Returns
+    --------------
+    frame_thermal : ndarray
+        FLIRのロゴを削除した赤外線カメラ
+    """
+    frame_thermal = frame_thermal[0:425, 0:640]
+    return frame_thermal
+
+def process(dxl,cap_rgb, cap_thermal):
     """
     非同期関数
     """
@@ -275,13 +312,16 @@ def process(dxl):
     global isPushKeyboard
     global isExit
 
-    cap_rgb = cv2.VideoCapture(0)  # 0 is the default camera
-    cap_thermal = cv2.VideoCapture(1)
-    if not cap_rgb.isOpened():
+
+    """
+    cap_rgb = cv2.VideoCapture(1)  # 0 is the default camera
+    cap_thermal = cv2.VideoCapture(0)
+    if not cap_rgb.isOpened():  
         print("Cannot open RGB camera")
         return
     if not cap_thermal.isOpened():
         print("Cannot open Thermal camera")
+    """
 
     print("Process started")
     # Set speed in joint mode
@@ -295,6 +335,8 @@ def process(dxl):
             isThermalUpper = False
         else:
             isThermalUpper = True
+        dxl.print_present_position()
+        print('isThermalUpper :' + f'{isThermalUpper}')
         moving = dxl.print_moving_state()
 
         ret_rgb, frame_rgb = cap_rgb.read()
@@ -316,10 +358,10 @@ def process(dxl):
             else:
                 isThermalUpper = True
             # ブレをなくす
-            stop_for_seconds(2)
+            stop_for_seconds(2.5)
             save_rgb_and_thermal_image(frame_rgb, frame_thermal)
             stop_for_seconds(3)
-            #moving = False
+            moving = 1
         #else:
             #moving = True
 
@@ -355,7 +397,11 @@ def stop_for_seconds(seconds):
 
 def main():
     global isExit
-
+    start = time.time()
+    cap_rgb, cap_thremal = open_camera()
+    end = time.time()
+    print("elapsed time:"+f'{end - start}')
+    time.sleep(40)
     # dynamixel_moduleのDXLクラスの呼び出し
     dxl = Dxl(DXL_ID, DEVICENAME)
 
@@ -364,7 +410,7 @@ def main():
     dxl.set_goal_position(DXL_MINIMUM_POSITION_VALUE)
 
     # process関数を別のスレッドで実行
-    thread = threading.Thread(target=process, args=(dxl,))
+    thread = threading.Thread(target=process, args=(dxl,cap_rgb, cap_thremal,))
     thread.start()
 
     global target_position
@@ -376,8 +422,9 @@ def main():
         dxl.set_goal_position(target_position)
 
         # Switch goal position at regular intervals (polling)
-        for _ in range(60):  # Polling for 2 seconds (20 x 0.1 seconds)
+        for _ in range(55):  # Polling for 6 seconds (60 x 0.1 seconds)
             event = threading.Event()
+            print("Pooling...")
             event.wait(0.1)  # wait for 0.1 seconds
 
         # Exit main loop condition
