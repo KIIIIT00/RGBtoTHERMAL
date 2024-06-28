@@ -96,7 +96,7 @@ def file_exist(folder):
     isExist = len(folder) != 0
     return isExist
 
-def FileNameNext(folder):
+def file_name_exist(folder):
     """
     フォルダ内の連番になっているファイルの次の連番番号を返す
 
@@ -140,6 +140,8 @@ def save_rgb_image(frame):
         thermal_count = frame_count + 1
     else:
         thermal_count = frame_count - 1
+    
+    print("img, thermal :"+f'{frame_count}'+"," + f'{thermal_count}')
     cv2.imwrite(filename, frame)
     print(f"Image saved as {filename}")
     
@@ -156,6 +158,7 @@ def save_thermal_image(frame):
     global frame_count
     global thermal_count
     global isThermalUpper
+
 
     filename = 'thermal' + f'{thermal_count}' + '.jpg'
     cv2.imwrite(filename, frame)
@@ -177,6 +180,44 @@ def save_rgb_and_thermal_image(img_rgb, img_thermal):
     save_rgb_image(img_rgb)
     save_thermal_image(img_thermal)
     frame_count += 1
+
+def paint_center_circle(img):
+    """
+    画像の中心に円を描画する
+
+    Parameters
+    --------------
+    対象の画像
+
+    Retruns
+    --------------
+    円を描画した後の画像
+    """
+
+    img = cv2.Circle(img, )
+
+def match_camera_size(img_rgb, img_thermal):
+    """
+    rgb画像とサーマル画像の大きさを(640, 512)にする
+
+    Parameters
+    --------------
+    img_rgb : ndarry
+        rgb画像の配列
+    img_thermal : ndarray
+        thermal画像の配列
+    
+    Returns
+    --------------
+    img_rgb : ndarray
+        画像の大きさをそろえたimg_rgb
+    img_themral : ndarray
+        画像の大きさをそろえたimg_thermal
+    """
+
+    img_rgb = cv2.resize(img_rgb, dsize=(640, 512))
+    img_thermal = cv2.resize(img_thermal, dsize=(640, 512))
+    return img_rgb, img_thermal
 
 def match_size(img_rgb, img_thermal):
     """
@@ -280,6 +321,11 @@ def open_camera():
     """
     cap_rgb = cv2.VideoCapture(1)  # 0 is the default camera
     cap_thermal = cv2.VideoCapture(0)
+    
+    cap_rgb.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
+    cap_rgb.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)  # 高さの設定
+    cap_thermal.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
+    cap_thermal.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)  # 高さの設定
     if not cap_rgb.isOpened():
         print("Cannot open RGB camera")
         return
@@ -312,7 +358,6 @@ def process(dxl,cap_rgb, cap_thermal):
     global isPushKeyboard
     global isExit
 
-
     """
     cap_rgb = cv2.VideoCapture(1)  # 0 is the default camera
     cap_thermal = cv2.VideoCapture(0)
@@ -342,6 +387,8 @@ def process(dxl,cap_rgb, cap_thermal):
         ret_rgb, frame_rgb = cap_rgb.read()
         ret_thermal, frame_thermal = cap_thermal.read()
         frame_rgb = undistort_and_crop(frame_rgb)
+        match_camera_size(frame_rgb, frame_thermal)
+        
         if isThermalUpper:
             frame_rgb = upside_down(frame_rgb)
             frame_thermal = upside_down(frame_thermal)
