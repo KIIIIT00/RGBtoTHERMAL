@@ -2,10 +2,11 @@ import cv2
 import numpy as np
 
 # 画像の読み込み
-img = cv2.imread('./Calibration/circle_grid.jpg')
+img = cv2.imread('./Calibration/demo/cold_thermal_9.png')
 
 # グレースケールに変換
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
 
 # 円グリッドのサイズを指定
 grid_size = (4, 9)  # 例として (rows, cols)
@@ -37,3 +38,5 @@ if found:
 else:
     print("円グリッドが見つかりませんでした。")
 
+cv2.imshow('gray', gray)
+cv2.waitKey(100000)

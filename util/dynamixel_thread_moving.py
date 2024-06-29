@@ -181,20 +181,6 @@ def save_rgb_and_thermal_image(img_rgb, img_thermal):
     save_thermal_image(img_thermal)
     frame_count += 1
 
-def paint_center_circle(img):
-    """
-    画像の中心に円を描画する
-
-    Parameters
-    --------------
-    対象の画像
-
-    Retruns
-    --------------
-    円を描画した後の画像
-    """
-
-    img = cv2.Circle(img, )
 
 def match_camera_size(img_rgb, img_thermal):
     """
@@ -266,6 +252,7 @@ def match_custom(img_rgb, img_thermal):
     img_rgb = cv2.resize(img_rgb, dsize=IMG_SIZE)
     img_thermal = cv2.resize(img_thermal, dsize=IMG_SIZE)
     return img_rgb, img_thermal
+
 
 def undistort_and_crop(img):
     """
@@ -386,6 +373,8 @@ def process(dxl,cap_rgb, cap_thermal):
 
         ret_rgb, frame_rgb = cap_rgb.read()
         ret_thermal, frame_thermal = cap_thermal.read()
+        frame_rgb, frame_thermal = match_camera_size(frame_rgb, frame_thermal)
+
         frame_rgb = undistort_and_crop(frame_rgb)
         match_camera_size(frame_rgb, frame_thermal)
         
