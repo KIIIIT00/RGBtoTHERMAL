@@ -11,10 +11,22 @@ GoogleDriveのリンクは以下の通りである
 そのフォルダをダウンロードし，CameraCalibrationフォルダの配下に設置する
 
 
-<<<<<<< HEAD
-=======
 
 FLIR Vue ProのFOV
 
 ![スクリーンショット 2024-05-31 182125](https://github.com/KawaharaItsuki/RGBtoTHERMAL/assets/162657156/15e5d92f-6d4a-4a50-a5da-01855dabead8)
->>>>>>> 4680756af71ab0174bab370312a2a858cf8c00eb
+
+
+
+取得したデータは，以下のOneDriveに挙げている
+
+https://ritsumei365-my.sharepoint.com/:f:/r/personal/is0611if_ed_ritsumei_ac_jp/Documents/RGBtoTHERMAL?csf=1&web=1&e=I163Dz
+
+
+Pix2Pix．CycleGANのオープンソースは以下のURLにある
+
+https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
+
+Pix2Pixの実行ファイルを以下に追記していく
+
+https://gist.github.com/KawaharaItsuki/5fd863b8e5f86bb02b11da5b4ecd82aa
