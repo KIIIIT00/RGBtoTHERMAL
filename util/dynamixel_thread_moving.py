@@ -270,10 +270,16 @@ def fov_match(img_rgb, img_thermal, isThermalUpper):
     """
     # 赤外線カメラが上にあるときは，webカメラは，下にある
     if isThermalUpper:
-        img_rgb = img_rgb[56:463, 48:572]
+        img_rgb = img_rgb[33:512,0:604]
+        img_thermal = img_thermal[0:484, 40:640]
+        #img_rgb = img_rgb[56:463, 48:572]
+        #img_rgb = img_rgb[56:484, 68:524]
     else:
-        img_rgb = img_rgb[36:453, 55:601]
-    
+        img_rgb = img_rgb[0:460, 31:512]
+        img_thermal = img_thermal[47:512, 0:604]
+        #img_rgb = img_rgb[36:453, 55:601]
+        #img_rgb = img_rgb[36:398, 75:601]
+        
     return img_rgb, img_thermal
 
 def cut_logo(img_rgb, img_thermal, isThermalUpper):
