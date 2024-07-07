@@ -9,8 +9,8 @@ import cv2
 import numpy as np
 import img_process
 
-filePath = './Calibration/demo/cold_rgb_18.png'
-img_src = cv2.imread(filePath,1 )
+filePath = './Calibration/demo/cold_thermal_53.png'
+img_src = cv2.imread(filePath,1)
 
 height, width, channel = img_src.shape
 

@@ -6,7 +6,7 @@ cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 cam = cv2.VideoCapture(0)
 
 imgpath = './Calibration/demo/'
-framecount = 31
+framecount = 52
 if not cap.isOpened():
     print("カメラを開くことができませんでした")
     exit()

@@ -12,7 +12,7 @@ def update_threshold(val):
     cv2.imshow('Binary Image', img_binary)
 
 # 画像を読み込み、グレースケールに変換
-img = cv2.imread('./Calibration/demo/cold_thermal_10.png')
+img = cv2.imread('./Calibration/demo/cold_rgb_38.png')
 img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 # 初期閾値
@@ -28,9 +28,12 @@ cv2.imshow('Binary Image', img_binary)
 # トラックバーを作成
 cv2.createTrackbar('Threshold', 'Binary Image', threshold, 255, update_threshold)
 
+
 # 'ESC'キーが押されるまで待機
 while True:
     if cv2.waitKey(1) & 0xFF == 27:  # ESCキーで終了
         break
 
+    if cv2.waitKey(1) == 99: # cキー
+        cv2.imwrite(f'./Calibration/thermal_threshold{threshold}.jpg', img_binary)
 cv2.destroyAllWindows()

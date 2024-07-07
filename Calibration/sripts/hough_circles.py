@@ -1,9 +1,11 @@
 import cv2
 
-img_gray = cv2.imread('./Calibration/demo/cold_rgb_38.png', cv2.IMREAD_GRAYSCALE)
-
-img = cv2.imread('./Calibration/demo/cold_rgb_38.png')
-circles = cv2.HoughCircles(img_gray, cv2.HOUGH_GRADIENT, dp=2, minDist=2, param1=100, param2=60, minRadius=0, maxRadius=100)
+#img_gray = cv2.imread('./Calibration/demo/cold_rgb_38.png', cv2.IMREAD_GRAYSCALE)
+img_gray = cv2.imread('./Calibration/thermal_threshold100.png', cv2.IMREAD_GRAYSCALE)
+print(type(img_gray))
+img = cv2.imread('./Calibration/thermal_threshold100.png')
+#img = cv2.imread('./Calibration/demo/cold_rgb_.png')
+circles = cv2.HoughCircles(img_gray, cv2.HOUGH_GRADIENT, dp=2.5, minDist=10, param1=90, param2=40, minRadius=10, maxRadius=60)
 
 cv2.imshow("img_gray", img_gray)
 for circle in circles[0]:
