@@ -6,22 +6,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 画像の読み込み
-image = cv2.imread('./Calibration/demo/cold_rgb_53.png')
+image = cv2.imread('./Calibration/demo/cold_rgb_55.png')
 
 # グレースケールに変換
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # 閾値処理
 # 赤外線のとき
-_, thresh = cv2.threshold(gray, 90, 100, cv2.THRESH_BINARY)
+_, thresh = cv2.threshold(gray, 70, 100, cv2.THRESH_BINARY)
 # RGBのとき
 #_, thresh = cv2.threshold(gray, 125, 255, cv2.THRESH_BINARY)
 
 # 輪郭を検出
 contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 # 赤外線のとき
-min_axis_length = 15 # 最小軸長
-max_axis_length = 100  # 最大軸長
+min_axis_length = 20 # 最小軸長
+max_axis_length = 60  # 最大軸長
 # RGBのとき
 #min_axis_length = 15 # 最小軸長
 #max_axis_length = 50  # 最大軸長
