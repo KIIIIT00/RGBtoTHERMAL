@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 
-img = cv2.imread('./Calibration/thermal_threshold110.jpg', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('./Calibration/chessboard_calibration_data/thermal/pic62.jpg', cv2.IMREAD_GRAYSCALE)
 img = cv2.bitwise_not(img)
 #print(os.path.isfile('./Calibration/thermal_threshold99.jpg'))
 img_disp = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
