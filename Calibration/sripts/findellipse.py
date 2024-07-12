@@ -13,7 +13,7 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # 閾値処理
 # 赤外線のとき
-_, thresh = cv2.threshold(gray,93, 120, cv2.THRESH_BINARY)
+_, thresh = cv2.threshold(gray,93, 255, cv2.THRESH_BINARY)
 # RGBのとき
 #_, thresh = cv2.threshold(gray, 125, 255, cv2.THRESH_BINARY)
 
