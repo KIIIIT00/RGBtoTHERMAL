@@ -8,7 +8,7 @@ def draw(img, corners, imgpts):
     img = cv2.line(img, (int(corners[0][0][0]), int(corners[0][0][1])), (int(imgpts[2][0][0]), int(imgpts[2][0][1])), (0,0,255), 5)   # z
     return img
 # 円グリッドのサイズを指定
-grid_size = (4, 9)  # 例として (rows, cols)
+grid_size = (7, 7)  # 例として (rows, cols)
 
 # 3Dオブジェクトポイント（ワールド座標系の座標）
 objp = np.zeros((np.prod(grid_size), 3), dtype=np.float32)
@@ -21,13 +21,12 @@ imgpoints = []
 img = cv2.imread('./Calibration/circle_grid.jpg')
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
 # 円グリッドの検出
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 found, corners = cv2.findCirclesGrid(gray, grid_size, flags=cv2.CALIB_CB_ASYMMETRIC_GRID)
 
 if found:
+    print(corners)
     imgpoints.append(corners)
 
     # 円グリッドを描画
@@ -56,7 +55,7 @@ if found:
     # project 3D points to image plane
     imgpts, jac = cv2.projectPoints(axis, rvecs, tvecs, mtx, dist)
 
-    img = draw(img,corners2,imgpts)
+    #img = draw(img,corners2,imgpts)
     cv2.imshow('Image', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

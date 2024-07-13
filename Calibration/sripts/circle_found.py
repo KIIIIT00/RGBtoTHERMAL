@@ -2,17 +2,17 @@ import cv2
 import numpy as np
 
 # 画像の読み込み
-img = cv2.imread('./Calibration/demo/cold_thermal_9.png')
+img = cv2.imread('./Calibration/thermal_threshold100.jpg')
 
 # グレースケールに変換
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 
 # 円グリッドのサイズを指定
-grid_size = (4, 9)  # 例として (rows, cols)
+grid_size = (4, 4)  # 例として (rows, cols)
 
 # 円グリッドを検出
-found, corners = cv2.findCirclesGrid(gray, grid_size, flags=cv2.CALIB_CB_ASYMMETRIC_GRID)
+found, corners = cv2.findCirclesGrid(gray, grid_size, flags=cv2.CALIB_CB_SYMMETRIC_GRID)
 
 if found:
     # カメラキャリブレーション

@@ -15,7 +15,7 @@ objp[:,:2] = np.mgrid[0:yoko,0:tate].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 #カメラの設定
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)  # 高さの設定
 
@@ -67,7 +67,8 @@ while True:
                 newcameramtx, roi=cv2.getOptimalNewCameraMatrix(mtx,dist,(w,h),1,(w,h))     # 周りの画像の欠損を考慮した内部パラメータと，トリミング範囲を作成
 
                 dst = cv2.undistort(img2, mtx, dist, None, newcameramtx)        # ここで歪み補正を行っている
-
+                before_undistort = dst.copy()
+                cv2.imshow('before undistort' , before_undistort)  
                 # crop the image
                 x,y,w,h = roi
                 dst = dst[y:y+h, x:x+w]     # 画像の端が黒くなっているのでトリミング
@@ -80,8 +81,8 @@ while True:
     if key == 27:   #Escで終了
         break
 
-cv2.imwrite('frame.png',frame)      # そのままの画像を保存
-cv2.imwrite('undistort.png',dst)    # 歪み補正された画像を保存
+#cv2.imwrite('frame.png',frame)      # そのままの画像を保存
+#cv2.imwrite('undistort.png',dst)    # 歪み補正された画像を保存
 #メモリを解放して終了するためのコマンド
 cap.release()
 cv2.destroyAllWindows()
