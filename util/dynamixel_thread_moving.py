@@ -181,7 +181,6 @@ def save_rgb_and_thermal_image(img_rgb, img_thermal):
     save_thermal_image(img_thermal)
     frame_count += 1
 
-
 def match_camera_size(img_rgb, img_thermal):
     """
     rgb画像とサーマル画像の大きさを(640, 512)にする
@@ -253,6 +252,68 @@ def match_custom(img_rgb, img_thermal):
     img_thermal = cv2.resize(img_thermal, dsize=IMG_SIZE)
     return img_rgb, img_thermal
 
+def fov_match(img_rgb, img_thermal, isThermalUpper):
+    """
+    rgb画像とサーマル画像の視野を合わせる
+    赤外線カメラが上にあるときかどうかで変える
+
+    Parameters
+    --------------
+    img_rgb : ndarray
+        rgb画像の配列
+    img_thermal : ndarray
+        サーマル画像の配列
+    isThermalUpper : boolean
+        赤外線カメラが上にあるかどうか
+        上にあるときTrue
+        下にあるときfalse
+    """
+    # 赤外線カメラが上にあるときは，webカメラは，下にある
+    if isThermalUpper:
+        img_rgb = img_rgb[33:512,0:604]
+        img_thermal = img_thermal[0:484, 40:640]
+        #img_rgb = img_rgb[56:463, 48:572]
+        #img_rgb = img_rgb[56:484, 68:524]
+    else:
+        img_rgb = img_rgb[0:460, 31:512]
+        img_thermal = img_thermal[47:512, 0:604]
+        #img_rgb = img_rgb[36:453, 55:601]
+        #img_rgb = img_rgb[36:398, 75:601]
+        
+    return img_rgb, img_thermal
+
+def cut_logo(img_rgb, img_thermal, isThermalUpper):
+    """
+    FLIRのロゴを消す
+    
+    Parameters
+    --------------
+    img_rgb : ndarray
+        rgb画像の配列
+    frame_thermal : ndarray
+        FLIRのロゴを削除する赤外線カメラ(640x512)
+    isThermalUpper : boolean
+        赤外線カメラが上にあるかどうか
+        赤外線カメラが上にあるときTrue
+
+    Returns
+    --------------
+    img_rgb : ndarray
+        rgb画像の配列
+    frame_thermal : ndarray
+        FLIRのロゴを削除した赤外線カメラ
+    """
+    # 画像サイズを640x512にする
+    img_rgb, img_thermal = match_camera_size(img_rgb, img_thermal)
+    
+    # 赤外線カメラが上にあるときは，webカメラは下にある
+    if isThermalUpper:
+        img_thermal = img_thermal[0:425, 0:640]
+        img_rgb = img_rgb[87:512, 0:640]
+    else:
+        img_thermal = img_thermal[87:512, 0:640]
+        img_rgb = img_rgb[0:425, 0:640]
+    return img_rgb, img_thermal
 
 def undistort_and_crop(img):
     """
@@ -320,23 +381,6 @@ def open_camera():
         print("Cannot open Thermal camera")
     return cap_rgb, cap_thermal
 
-def cut_logo(frame_thermal):
-    """
-    FLIRのロゴを消す
-    
-    Parameters
-    --------------
-    frame_thermal : ndarray
-        FLIRのロゴを削除する赤外線カメラ(640x512)
-
-    Returns
-    --------------
-    frame_thermal : ndarray
-        FLIRのロゴを削除した赤外線カメラ
-    """
-    frame_thermal = frame_thermal[0:425, 0:640]
-    return frame_thermal
-
 def process(dxl,cap_rgb, cap_thermal):
     """
     非同期関数
@@ -376,12 +420,22 @@ def process(dxl,cap_rgb, cap_thermal):
         frame_rgb, frame_thermal = match_camera_size(frame_rgb, frame_thermal)
 
         frame_rgb = undistort_and_crop(frame_rgb)
-        match_camera_size(frame_rgb, frame_thermal)
         
         if isThermalUpper:
             frame_rgb = upside_down(frame_rgb)
             frame_thermal = upside_down(frame_thermal)
-        
+
+        # 視野合わせ
+        frame_rgb, frame_thermal = fov_match(frame_rgb, frame_thermal, isThermalUpper)
+        # 画像のサイズを合わせる
+        frame_rgb, frame_thermal = match_camera_size(frame_rgb, frame_thermal)
+        # ロゴを切り取る
+        frame_rgb, frame_thermal = cut_logo(frame_rgb, frame_thermal, isThermalUpper)
+        # 画像のサイズをそろえる
+        frame_rgb, frame_thermal = match_camera_size(frame_rgb, frame_thermal)
+        # IMG_SIZEにする
+        frame_rgb, frame_thermal =match_custom(frame_rgb, frame_thermal)
+                
         if ret_rgb and ret_thermal:
             cv2.imshow('RGB', frame_rgb)
             cv2.imshow('Thermal', frame_thermal)

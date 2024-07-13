@@ -5,7 +5,7 @@ import cv2
 grid_size = (4, 9)  # 例として (rows, cols)
 
 #カメラの設定
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)  # 高さの設定
 # 3Dオブジェクトポイント（ワールド座標系の座標）
@@ -31,7 +31,7 @@ while True:
     #ret, img_otsu = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU)
     cv2.imshow('frame',frame)
 
-    found, corners = cv2.findCirclesGrid(gray, grid_size, flags=cv2.CALIB_CB_ASYMMETRIC_GRID)
+    found, corners = cv2.findCirclesGrid(gray, grid_size, flags=cv2.CALIB_CB_SYMMETRIC_GRID)
     
     if found:
         dots_frame = cv2.drawChessboardCorners(img, grid_size, corners, found)

@@ -24,7 +24,7 @@ objp[:,:2] = np.mgrid[0:yoko,0:tate].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 #カメラの設定
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)  # 幅の設定
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)  # 高さの設定
 
@@ -91,7 +91,7 @@ while True:
     if key == 27:   #Escで終了
         break
 
-cv2.imwrite('dots.png',img_dots)        # 点が描画された画像を保存
+#cv2.imwrite('dots.png',img_dots)        # 点が描画された画像を保存
 #メモリを解放して終了するためのコマンド
 cap.release()
 cv2.destroyAllWindows()

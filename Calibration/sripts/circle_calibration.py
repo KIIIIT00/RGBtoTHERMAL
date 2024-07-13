@@ -7,7 +7,7 @@ import cv2
 import os
 import glob
 from tqdm import tqdm    # 繰り返し処理の進捗を表示するためもの
-grid_size = (4, 9)
+grid_size = (7, 7)
 
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
 
@@ -20,12 +20,12 @@ imgpoints = []          # 二次元座標(画像座標)を格納する配列
 objp = np.zeros((np.prod(grid_size), 3), dtype=np.float32)
 objp[:, :2] = np.mgrid[0:grid_size[0], 0:grid_size[1]].T.reshape(-1, 2)
 
-images = glob.glob('./Calibration/calibration_data/*.jpg')
+images = glob.glob('./Calibration/circlegrid_calibration_data/rgb/*.jpg')
 print("全ての画像の交点の画像座標を求めています")
 for filepath in tqdm(images):       # ※tqdmは繰り返し処理の進捗を表示するためのもの
     img = cv2.imread(filepath)                      # 変数filepathが持っている名前の画像を開く
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-    found, corners = cv2.findCirclesGrid(gray, grid_size, flags=cv2.CALIB_CB_ASYMMETRIC_GRID)
+    found, corners = cv2.findCirclesGrid(gray, grid_size,None, flags=cv2.CALIB_CB_SYMMETRIC_GRID)
 
     if found:
         objpoints.append(objp)          # 交点のワールド座標をobjpointsに追加
@@ -33,7 +33,7 @@ for filepath in tqdm(images):       # ※tqdmは繰り返し処理の進捗を�
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         
         imgpoints.append(corners2)
-
+        
 print("\nカメラキャリブレーションを行っています")
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)    # ここでカメラキャリブレーションを行っている
 
