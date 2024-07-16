@@ -1,7 +1,7 @@
 import cv2
 
 cap = cv2.VideoCapture(1)
-cap_thermal = cv2.VideoCapture(0, cv2.CAP_MSMF)
+cap_thermal = cv2.VideoCapture(0)
 #print(type(cap))
 print(type(cap_thermal))
 #print(cap.isOpened())
