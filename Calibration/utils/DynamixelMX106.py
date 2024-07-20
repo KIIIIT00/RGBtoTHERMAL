@@ -4,11 +4,11 @@ Dynamixel MX-106の制御を行うクラス
 
 from dynamixel_sdk import *
 
-ADDR_TORQUE_ENABLE           = 24
-ADDR_GOAL_POSITION           = 30
-ADDR_PRESENT_POSITION        = 36
-ADDR_GOAL_POSITION_SPEED     = 32
-ADDR_MOING_STATE             = 46
+ADDR_TORQUE_ENABLE           = 64
+ADDR_GOAL_POSITION           = 116
+ADDR_PRESENT_POSITION        = 132
+ADDR_GOAL_POSITION_SPEED     = 128
+ADDR_MOING_STATE             = 123
 
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
@@ -48,14 +48,31 @@ class DynamixelMX106:
             raise Exception(f"Dynamixel error: {self.packet_handler.getRxPacketError(dxl_error)}")
     
     def set_goal_position(self, position):
+        """
+        Write goal position
+        Args:
+            position (int): Goal position in the range of -28672 to 28672 (0x3FF)
+        
+        Returns:
+            None
+        """
         # Write goal position
         dxl_comm_result, dxl_error = self.packet_handler.write4ByteTxRx(self.port_handler, self.motor_id, ADDR_GOAL_POSITION, position)
         if dxl_comm_result != COMM_SUCCESS:
             raise Exception(f"Failed to set goal position: {self.packet_handler.getTxRxResult(dxl_comm_result)}")
         elif dxl_error != 0:
             raise Exception(f"Dynamixel error: {self.packet_handler.getRxPacketError(dxl_error)}")
-    
+        
     def get_present_position(self):
+        """
+        Read present position
+        Returns:
+            int: Present position in the range of -28672 to 28672 (0x3FF)
+        
+        Returns:
+            int: Present position in the range of -28672 to 28672 (0x3FF)
+        """
+        
         # Read present position
         dxl_present_position, dxl_comm_result, dxl_error = self.packet_handler.read4ByteTxRx(self.port_handler, self.motor_id, ADDR_PRESENT_POSITION)
         if dxl_comm_result != COMM_SUCCESS:
@@ -65,14 +82,42 @@ class DynamixelMX106:
         
         return dxl_present_position
     
+    def is_moving(self):
+        """
+        モータが現在動いているかどうか
+
+        Returns:
+        True: 動いている
+        False: 動いていない
+        """
+        moving, dxl_comm_result, dxl_error = self.packet_handler.read1ByteTxRx(self.port_handler, self.motor_id, ADDR_MOING_STATE)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
+            return False
+        elif dxl_error != 0:
+            print("%s" % self.packet_handler.getRxPacketError(dxl_error))
+            return False
+
+        # 速度がゼロでない場合、サーボは動作中と判断
+        return moving == 1
     def rotate_to_minus_180(self):
-        # Rotate to -90 degrees
+        """
+        -180度回転をする
+        """
+        # Rotate to -180 degrees
         self.set_goal_position(0)
     
     def init_position(self):
+        """
+        初期位置(2048)に戻す
+        """
         self.set_goal_position(2048)
+    
     def rotate_to_180(self):
-        # Rotate to +90 degrees
+        """
+        180度回転する
+        """
+        # Rotate to +180 degrees
         self.set_goal_position(4095)
 
     def close_port(self):

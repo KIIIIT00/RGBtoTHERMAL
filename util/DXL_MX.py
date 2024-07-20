@@ -4,11 +4,11 @@ Dynamixel MX-106の制御を行うクラス
 
 from dynamixel_sdk import *
 
-ADDR_TORQUE_ENABLE           = 24
-ADDR_GOAL_POSITION           = 30
-ADDR_PRESENT_POSITION        = 36
-ADDR_GOAL_POSITION_SPEED     = 32
-ADDR_MOING_STATE             = 46
+ADDR_TORQUE_ENABLE           = 64
+ADDR_GOAL_POSITION           = 116
+ADDR_PRESENT_POSITION        = 132
+ADDR_GOAL_POSITION_SPEED     = 128
+ADDR_MOING_STATE             = 123
 
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0

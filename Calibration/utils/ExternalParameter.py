@@ -98,6 +98,9 @@ class ExternalParameterCalculator:
         return world_point
     
     def undistort_points(self, image_point):
+        """
+        画像座標をカメラ座標に変換する
+        """
         print("image_point:", image_point.shape)
         image_point = image_point.T.reshape(1, 1, 2)
         print("image_point reshape:", image_point)
@@ -107,12 +110,19 @@ class ExternalParameterCalculator:
         return normalized_image_point
 
     def camerapoint_to_worldpoint(self, camera_point, rotation_matrix, translation_vector):
+        """
+        カメラ座標をワールド座標に変換する
+        """
         R, _ = cv2.Rodrigues(rotation_matrix)
         t = translation_vector
         world_point = np.dot(np.linalg.inv(R), camera_point - t)
         return world_point
     
-    def wolrd_in_camerapoint(self, image_point, rotation_matrix, translation_vector):
+    def world_in_camerapoint(self, image_point, rotation_matrix, translation_vector):
+        """
+        チェスボードの原点に対してワールド座標におけるカメラの原点と視点方向を求める
+
+        """
         undistorted_ponts_homogeneous = self.undistort_points(image_point)
         R, _ = cv2.Rodrigues(rotation_matrix)
         t = translation_vector
@@ -123,3 +133,5 @@ class ExternalParameterCalculator:
         # カメラの視点方向を計算
         camera_direction = np.dot(np.linalg.inv(R), np.array([[0], [0], [1]]))
         return camera_position, camera_direction
+    
+
