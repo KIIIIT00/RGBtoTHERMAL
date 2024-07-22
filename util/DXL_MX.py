@@ -70,10 +70,10 @@ class DynamixelMX106:
         self.set_goal_position(0)
     
     def init_position(self):
-        self.set_goal_position(2048)
+        self.set_goal_position(1024)
     def rotate_to_180(self):
         # Rotate to +90 degrees
-        self.set_goal_position(4095)
+        self.set_goal_position(3072)
 
     def close_port(self):
         # Close port
@@ -86,12 +86,14 @@ if __name__ == "__main__":
     
     try:
         motor.enable_torque()
-        motor.init_position()
-        time.sleep(2)  # Wait for 2 seconds
-        motor.rotate_to_180()
-        time.sleep(2)  # Wait for 2 seconds
-        motor.init_position()
-        time.sleep(2)  # Wait for 2 seconds
+        for i in range(10):
+            motor.init_position()
+            time.sleep(2)  # Wait for 2 seconds
+            motor.rotate_to_180()
+            time.sleep(2)  # Wait for 2 seconds
+        #motor.init_position()
+        #time.sleep(2)  # Wait for 2 seconds
+
         motor.disable_torque()
     finally:
         motor.close_port()

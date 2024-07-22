@@ -134,4 +134,5 @@ class ExternalParameterCalculator:
         camera_direction = np.dot(np.linalg.inv(R), np.array([[0], [0], [1]]))
         return camera_position, camera_direction
     
-
+    
+    

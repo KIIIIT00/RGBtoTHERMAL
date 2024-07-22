@@ -109,16 +109,16 @@ class DynamixelMX106:
     
     def init_position(self):
         """
-        初期位置(2048)に戻す
+        初期位置(1024)に戻す
         """
-        self.set_goal_position(2048)
+        self.set_goal_position(1024)
     
     def rotate_to_180(self):
         """
         180度回転する
         """
         # Rotate to +180 degrees
-        self.set_goal_position(4095)
+        self.set_goal_position(3072)
 
     def close_port(self):
         # Close port
