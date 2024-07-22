@@ -1,7 +1,7 @@
 import cv2
 
 # ビデオキャプチャオブジェクトを作成する（デフォルトのカメラを使用）
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 if not cap.isOpened():
     print("カメラを開くことができませんでした")

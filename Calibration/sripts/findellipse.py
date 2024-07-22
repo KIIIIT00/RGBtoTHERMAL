@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # 画像の読み込み
-image = cv2.imread('./Calibration/chessboard_calibration_data/thermal/pic62.jpg')
+image = cv2.imread('./Calibration/chessboard_calibration_data/rgb/pic33.jpg')
 image = cv2.bitwise_not(image)
 # グレースケールに変換
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

@@ -5,8 +5,8 @@
 import cv2
 import numpy as np
 import glob
-from utils.cameracalibration import CameraCalibration
-from utils.ellipse_trackbar import EllipseFinder
+from utils.CameraCalibration import CameraCalibration
+from Calibration.utils.EllipseFinder import EllipseFinder
 
 chessboard_size = (5, 5)
 calibration = CameraCalibration(chessboard_size)
@@ -27,7 +27,7 @@ for fname in images:
 
 image_size = (640, 512)
 ret, mtx, dist, rvecs, tvecs = calibration.calibrate(image_size)
-    
+
 print("キャリブレーション結果:")
 print("リプロジェクションエラー:", ret)
 print("カメラ行列:\n", mtx)
