@@ -7,7 +7,7 @@ from dynamixel_sdk import *
 ADDR_TORQUE_ENABLE           = 64
 ADDR_GOAL_POSITION           = 116
 ADDR_PRESENT_POSITION        = 132
-ADDR_GOAL_POSITION_SPEED     = 128
+ADDR_GOAL_POSITION_SPEED     = 112
 ADDR_MOING_STATE             = 123
 
 TORQUE_ENABLE = 1
@@ -71,10 +71,22 @@ class DynamixelMX106:
     
     def init_position(self):
         self.set_goal_position(1024)
+
     def rotate_to_180(self):
         # Rotate to +90 degrees
         self.set_goal_position(3072)
 
+    def setting_speed(self, dxl_speed):
+        """
+        関節モードにおけるモータのスピードを変化する
+        """
+        dxl_comm_result, dxl_error = self.packet_handler.write4ByteTxRx(self.port_handler, self.motor_id, ADDR_GOAL_POSITION_SPEED, dxl_speed)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))  
+        elif dxl_error != 0:
+            print("%s" % self.packet_handler.getRxPacketError(dxl_error))
+        else:
+            print("Dynamixel moving speed has been successfully set")
     def close_port(self):
         # Close port
         self.port_handler.closePort()
@@ -86,11 +98,12 @@ if __name__ == "__main__":
     
     try:
         motor.enable_torque()
+        motor.setting_speed(50)
         for i in range(10):
             motor.init_position()
-            time.sleep(2)  # Wait for 2 seconds
+            time.sleep(4)  # Wait for 2 seconds
             motor.rotate_to_180()
-            time.sleep(2)  # Wait for 2 seconds
+            time.sleep(4)  # Wait for 2 seconds
         #motor.init_position()
         #time.sleep(2)  # Wait for 2 seconds
 
