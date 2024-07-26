@@ -19,11 +19,11 @@ def read_accelerometer():
 
 try:
     while True:
+        
         accelerometer_data = read_accelerometer()
         if accelerometer_data:
             x, y, z = accelerometer_data
             print(f"加速度: x={x} [g], y={y} [g], z={z} [g]")
-        
         time.sleep(0.1)
 
 except KeyboardInterrupt:

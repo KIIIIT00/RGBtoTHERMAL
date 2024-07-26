@@ -98,7 +98,7 @@ if __name__ == "__main__":
     
     try:
         motor.enable_torque()
-        motor.setting_speed(50)
+        motor.setting_speed(100)
         for i in range(10):
             motor.init_position()
             time.sleep(4)  # Wait for 2 seconds
