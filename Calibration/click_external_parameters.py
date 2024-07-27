@@ -3,7 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from utils.CameraCalibration import CameraCalibration
+from utils.cameracalibration import CameraCalibration
 from utils.EllipseFinder import EllipseFinder
 from utils.ExternalParameter import ExternalParameterCalculator
 
@@ -23,11 +23,11 @@ rgb_dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.2536
 rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
-# RGB画像読み込み
-thermal_image_path = './Calibration/chessboard_calibration_data/thermal/pic63.jpg'
+# 赤外線画像読み込み
+thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_2.jpg'
 
 # RGB画像読み込み
-rgb_image_path = './Calibration/chessboard_check_16.png'
+rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_2.jpg'
 
 # 赤外線画像におけるコーナーの検知
 thermal_finder = EllipseFinder(thermal_image_path)

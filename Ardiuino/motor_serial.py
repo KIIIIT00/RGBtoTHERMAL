@@ -9,15 +9,45 @@ import matplotlib.pyplot as plt
 import japanize_matplotlib
 import keyboard
 
+def check_convergence_accelerations(pre_acceleration, acceleration, match_count):
+    """
+    加速度が収束したかどうかを判断する
+
+    Parameters
+    -------------
+    pre_acceleration : 前の時刻の加速度
+    acceleration : 現在の加速度
+    match_count : 前の時刻の加速度と現在の加速度が連続で一致した回数
+    """
+    if pre_acceleration == acceleration:
+        match_count += 1
+    else:
+        match_count = 0
+    
+    return match_count
+
 # Dynamixel MX106の設定
 motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
 motor.enable_torque()
-#print(motor.get_present_position())
+print(motor.get_present_position())
 motor.init_position()
-#print(motor.get_present_position())
+print(motor.get_present_position())
 motor.setting_speed(100)
-INIT_POS = 1025
-ROTATION_POS = 3071
+INIT_POS = 1024
+ROTATION_POS = 3072
+
+# モータの現在位置がINIT_POSにあるかどうか
+flag_init = True
+
+# タイマーが起動したかどうか
+flag_timer = False
+
+# 前の時刻と現在の加速度が一致したカウント
+match_count = 0
+
+# 前の時刻の加速度
+pre_acceleration = 0
+
 # 加速度センサの設定
 serial = SerialSetting(port_name='COM6', baud_rate=57600)
 
@@ -48,14 +78,47 @@ while True:
     motor_accelerations_y.append(y)
     motor_accelerations_z.append(z)
 
+
+    # if not is_moving:
+    #     if -0.07 == x:
+    #         if ROTATION_POS == present_pos:
+    #             motor.init_position()
+    #     elif 0.02 == x:
+    #         if INIT_POS == present_pos:
+    #             motor.rotate_to_180()
+
     if not is_moving:
-        if -0.07 == x:
-            if ROTATION_POS == present_pos:
-                motor.init_position()
-        elif 0.02 == x:
-            if INIT_POS == present_pos:
+        if INIT_POS - 2 <= present_pos and present_pos <= INIT_POS + 2:
+            # if not flag_timer:
+            #     print('------------ start ----------------------')
+            #     start = time.time()
+            #     flag_timer = True
+            # current = time.time() - start
+            # if current > 3:
+            match_count = check_convergence_accelerations(pre_acceleration, x, match_count)
+            if match_count >= 3:
+                print('------------ finish ----------------------')
+                # 3秒経過したとき
                 motor.rotate_to_180()
-    
+                flag_init = False
+                flag_timer = False
+        elif ROTATION_POS - 2 <= present_pos and present_pos <= ROTATION_POS + 2:
+            # if not flag_timer:
+            #     print('------------ start rotation ----------------------')
+            #     start = time.time()
+            #     flag_timer = True
+            # current = time.time() - start
+            # if current > 3:
+            match_count = check_convergence_accelerations(pre_acceleration, x, match_count)
+            if match_count >= 3:
+                print('------------ finish rotation ----------------------')
+                # 3秒経過したとき
+                motor.init_position()
+                flag_init = True
+                flag_timer = False
+
+    # 現在の位置を登録
+    pre_acceleration = x
     if keyboard.is_pressed('escape'):
         print('Escが押されました')
         break
