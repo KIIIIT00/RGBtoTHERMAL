@@ -3,7 +3,7 @@
 void setup() {
   // put your setup code here, to run once:
   //シリアル通信の設定
-  Serial.begin(9600);
+  Serial.begin(57600);
   while(!Serial);
 
   if(!IMU.begin()){
