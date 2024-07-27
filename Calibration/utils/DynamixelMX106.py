@@ -7,8 +7,8 @@ from dynamixel_sdk import *
 ADDR_TORQUE_ENABLE           = 64
 ADDR_GOAL_POSITION           = 116
 ADDR_PRESENT_POSITION        = 132
-ADDR_GOAL_POSITION_SPEED     = 128
-ADDR_MOING_STATE             = 123
+ADDR_GOAL_POSITION_SPEED     = 112
+ADDR_MOVING_STATE             = 122
 
 TORQUE_ENABLE = 1
 TORQUE_DISABLE = 0
@@ -90,16 +90,17 @@ class DynamixelMX106:
         True: 動いている
         False: 動いていない
         """
-        moving, dxl_comm_result, dxl_error = self.packet_handler.read1ByteTxRx(self.port_handler, self.motor_id, ADDR_MOING_STATE)
+        moving, dxl_comm_result, dxl_error = self.packet_handler.read1ByteTxRx(self.port_handler, self.motor_id, ADDR_MOVING_STATE)
         if dxl_comm_result != COMM_SUCCESS:
             print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))
             return False
         elif dxl_error != 0:
             print("%s" % self.packet_handler.getRxPacketError(dxl_error))
             return False
-
+        print("MOVING:", moving)
         # 速度がゼロでない場合、サーボは動作中と判断
         return moving == 1
+    
     def rotate_to_minus_180(self):
         """
         -180度回転をする
@@ -119,7 +120,22 @@ class DynamixelMX106:
         """
         # Rotate to +180 degrees
         self.set_goal_position(3072)
-
+    
+    def setting_speed(self, dxl_speed):
+        """
+        関節モードにおけるモータのスピードを変化する
+        """
+        dxl_comm_result, dxl_error = self.packet_handler.write4ByteTxRx(self.port_handler, self.motor_id, ADDR_GOAL_POSITION_SPEED, dxl_speed)
+        if dxl_comm_result != COMM_SUCCESS:
+            print("%s" % self.packet_handler.getTxRxResult(dxl_comm_result))  
+        elif dxl_error != 0:
+            print("%s" % self.packet_handler.getRxPacketError(dxl_error))
+        else:
+            print("Dynamixel moving speed has been successfully set")
+    def close_port(self):
+        # Close port
+        self.port_handler.closePort()
+    
     def close_port(self):
         # Close port
         self.port_handler.closePort()
