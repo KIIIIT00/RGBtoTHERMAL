@@ -8,7 +8,6 @@ import cv2
 from dynamixel_sdk import *
 from utils.DynamixelMX106 import DynamixelMX106
 from utils.SerialSetting import SerialSetting
-import keyboard
 import os
 
 # カメラの設定
