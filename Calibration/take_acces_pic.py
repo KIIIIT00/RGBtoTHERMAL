@@ -65,7 +65,7 @@ while True:
     if not is_moving:
         print('present_pos', present_pos)
          # モータが動作していないとき
-        if (-0.06<= x and x <= 0) or (0 <= x and x <= 0.01):
+        if (-0.07<= x and x <= 0) or (0 <= x and x <= 0.03):
             # 加速度センサのxが0から0.01の間のとき
             #if INIT_POS - 1 <= present_pos and present_pos <= INIT_POS + 1:
             if ROTATION_POS == present_pos:

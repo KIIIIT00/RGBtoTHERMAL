@@ -101,7 +101,7 @@ if __name__ == "__main__":
         motor.setting_speed(100)
         for i in range(10):
             motor.init_position()
-            time.sleep(4)  # Wait for 2 seconds
+            time.sleep(4)  # Wait for 2 secondsc
             motor.rotate_to_180()
             time.sleep(4)  # Wait for 2 seconds
         #motor.init_position()
