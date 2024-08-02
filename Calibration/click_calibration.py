@@ -5,7 +5,7 @@
 import cv2
 import numpy as np
 import glob
-from utils.CameraCalibration import CameraCalibration
+from utils.cameracalibration import CameraCalibration
 from Calibration.utils.EllipseFinder import EllipseFinder
 
 chessboard_size = (5, 5)

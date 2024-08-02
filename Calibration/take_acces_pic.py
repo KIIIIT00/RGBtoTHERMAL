@@ -26,20 +26,20 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
 OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
 OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
 # フレームカウント
-rgbcount = 11
-thermalcount = 11
+rgbcount = 23
+thermalcount = 23
 
 # Dynamixel MX106の設定
 motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
 motor.enable_torque()
-motor.init_position()
+motor.rotate_to_180()
 print(motor.get_present_position())
 motor.setting_speed(100)
 INIT_POS = 1024
 ROTATION_POS = 3072
 
 # 加速度センサの設定
-serial = SerialSetting(port_name='COM6', baud_rate=57600)
+serial = SerialSetting(port_name='COM5', baud_rate=57600)
 
 # 赤外線カメラが上にあるとき
 flag_init = True
@@ -81,9 +81,9 @@ while True:
                 current = time.time() - start
                 if current >= 1.5:
                     # 1.5秒経過したとき
-                    thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
-                    cv2.imwrite(thermal_filename, thermal_frame)
-                    thermalcount += 1
+                    rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
+                    cv2.imwrite(rgb_filename, rgb_frame)
+                    rgbcount += 1
                     motor.rotate_to_180()
                     flag_init = False
                     flag_timer = False
@@ -99,9 +99,9 @@ while True:
                     flag_timer = True
                 current = time.time() - start
                 if current >= 1.5:
-                    rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
-                    cv2.imwrite(rgb_filename, rgb_frame)
-                    rgbcount += 1
+                    thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
+                    cv2.imwrite(thermal_filename, thermal_frame)
+                    thermalcount += 1
                     motor.init_position()
                     flag_init = True
                     flag_timer = False
