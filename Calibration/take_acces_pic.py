@@ -26,8 +26,7 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
 OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
 OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
 # フレームカウント
-rgbcount = 23
-thermalcount = 23
+rgbcount = thermalcount = 160
 
 # Dynamixel MX106の設定
 motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
@@ -65,13 +64,14 @@ while True:
     # モータが動いていないとき
     accelerometer_data = serial.read_accelerometer()
     x, y, z = accelerometer_data
-    print('x:', x)
+    print('y:', y)
+    print('POS:', present_pos)
 
     if not is_moving:
         # モータが動作していないとき
-        if INIT_POS - 2 <= present_pos and present_pos <= INIT_POS + 2:
+        if INIT_POS - 3 <= present_pos and present_pos <= INIT_POS + 3:
             # モータが初期位置に到達したとき
-            if 0.00 <= x and x <= 0.02:
+            if 0.00<= y and y <= 0.05:
                 # x方向の加速度が0から0.02[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき
@@ -88,9 +88,9 @@ while True:
                     flag_init = False
                     flag_timer = False
 
-        elif ROTATION_POS - 2 <= present_pos and present_pos <= ROTATION_POS + 2:
+        elif ROTATION_POS - 3 <= present_pos and present_pos <= ROTATION_POS + 3:
             # モータが180°回転したとき
-            if -0.07 <= x and x <= 0.00:
+            if 0.00 <= y and y <= 0.05:
                 # x方向の加速度が-0.07から0[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき

@@ -20,7 +20,7 @@ class StereoCameraCalibration:
         chessboard_size (tuple): チェスボードのサイズ (width, height)
         """
         self.chessboard_size = chessboard_size
-        self.square_size = 42.5            # チェスボードの格子点の間隔(cm)
+        self.square_size = 42.5            # チェスボードの格子点の間隔(mm)
         self.objpoints = []                # 3Dオブジェクトのポイント
         self.imgpoints_rgb = []            # RGBカメラの2Dポイント
         self.imgpoints_thermal = []        # 赤外線カメラの2Dポイント
@@ -79,6 +79,8 @@ class StereoCameraCalibration:
         )
         self.R = R
         self.T = T
+        print("回転行列 R:", R)
+        print("並進ベクトル T:", T)
     
     def plot_cameras(self):
         """
@@ -110,3 +112,40 @@ class StereoCameraCalibration:
         print("RGB Camera x:"+str(rgb_position[0])+ " y:" + str(rgb_position[1])+ " z:"+str(rgb_position[2]))
 
         plt.show()
+    
+    def plot_cameras_pos(self):
+        thermal_center = np.array([0, 0, 0])
+        rgb_center = self.T
+
+        print("赤外線カメラの位置:", thermal_center)
+        print("RGBカメラの位置:", rgb_center)
+
+        thermal_axes = np.eye(3)
+        rgb_axes = self.R @ thermal_axes
+
+        print("赤外線カメラの向き:")
+        print(thermal_axes)
+        print("RGBカメラの向き:")
+        print(rgb_axes)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        # カメラの位置をプロット
+        ax.scatter(thermal_center[0], thermal_center[1], thermal_center[2], color='r', label="Thermal Camera")
+        ax.scatter(rgb_center[0], rgb_center[1], rgb_center[2], color='b', label="RGB Camera")
+
+        # カメラの向きをプロット
+        def plot_axes(ax, origin, axes, color):
+            for i in range(3):
+                ax.quiver(origin[0], origin[1], origin[2], axes[0, i], axes[1, i], axes[2, i], color=color)
+            
+        plot_axes(ax, thermal_center, thermal_axes, 'r')
+        plot_axes(ax, rgb_center, rgb_axes, 'b')
+
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+        ax.legend()
+        plt.show()
+

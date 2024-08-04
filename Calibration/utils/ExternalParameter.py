@@ -64,10 +64,10 @@ class ExternalParameterCalculator:
 
         Parameters:
         - image_point: 画像座標系における2次元点 (u, v)。
-        - camera_matrix: カメラ行列 (3x3)。
+        - camera_matrix: カメラ行列 (3x3)
 
         Returns:
-        - camera_point: カメラ座標系における3次元点 (x, y, z)。
+        - camera_point: カメラ座標系における3次元点 (x, y, z)
         """
         fx = self.mtx[0, 0]
         fy = self.mtx[1, 1]

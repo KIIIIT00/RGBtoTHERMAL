@@ -3,7 +3,7 @@ import time
 
 # シリアルポートの設定
 serial = serial.Serial(
-    port = 'COM6',
+    port = 'COM5',
     baudrate = 57600,
     timeout = 1
 )

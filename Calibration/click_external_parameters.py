@@ -24,10 +24,10 @@ rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
 # 赤外線画像読み込み
-thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_2.jpg'
+thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_18.jpg'
 
 # RGB画像読み込み
-rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_2.jpg'
+rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_18.jpg'
 
 # 赤外線画像におけるコーナーの検知
 thermal_finder = EllipseFinder(thermal_image_path)

@@ -49,7 +49,7 @@ match_count = 0
 pre_acceleration = 0
 
 # 加速度センサの設定
-serial = SerialSetting(port_name='COM6', baud_rate=57600)
+serial = SerialSetting(port_name='COM5', baud_rate=57600)
 
 # モータの角度とそのときの加速度を格納するリスト
 motor_angles = []
