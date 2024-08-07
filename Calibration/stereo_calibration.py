@@ -17,18 +17,18 @@ from utils.StereoCameraCalibration import StereoCameraCalibration
 # チェスボードの設定
 chessboard_size = (5, 5)
 
-thermal_mtx = np.array([769.34777275, 0, 284.87790552,
-                        0, 771.09576331, 247.82882986,
+thermal_mtx = np.array([793.51781303, 0, 282.89351446,
+                        0, 790.70983425, 241.89215578,
                         0 ,0 ,1]).reshape(3, 3)
 #print("thermal_mtx:", thermal_mtx.shape)
 # 赤外線カメラの内部パラメータ
-thermal_dist = np.array([-7.91810594e-1, 9.81301368e+00, -8.42753413-3, -1.46486095e-2, -3.88815631e+1])
+thermal_dist = np.array([-5.61011023e-1, 7.12516498e+00, -7.80341451e-3, -1.77081043e-2, -2.80952846e+1])
 thermal_mtx = thermal_mtx.astype(np.float32)
 thermal_dist = thermal_dist.astype(np.float32)
 
 # RGBカメラの内部パラメータ
-rgb_mtx = np.array([622.56592404, 0, 318.24063181, 0, 623.20968839, 245.37576884, 0, 0, 1]).reshape(3,3)
-rgb_dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.25360545])
+rgb_mtx = np.array([621.80090236, 0, 309.61717191, 0, 624.22815912, 234.27475688, 0, 0, 1]).reshape(3,3)
+rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
 rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 

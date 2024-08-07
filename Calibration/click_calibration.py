@@ -38,7 +38,50 @@ def read_file(file_name):
     except Exception as e:
         # その他のエラー
         print(f"An error occurred: {e}")
-        
+
+def get_data_from_text(text_path, threshold):
+        """
+        テキストファイルから，写真の番号と再投影誤差が格納されたリストを返す
+
+        Parameters
+        ----------
+        text_path : str
+            テキストファイルのパス
+        threshold : float
+            再投影誤差の閾値
+
+        Returns
+        ----------
+        pic_nums : list
+            写真の番号が格納されたリスト
+        errors : list
+            再投影誤差が格納されたリスト
+        """
+        pic_nums = []
+        errors = []
+        try:
+            with open(text_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    sentences = re.split(r'[,]', line.strip())
+                    for sentence in sentences:
+                        # 正規表現を使用して，数値を抽出
+                        match_pic = re.search(r'picnum:\s*(\d+)', sentence)
+                        match_error = re.search(r'error:\s*([\d\.]+)', sentence)
+                        if match_pic:
+                            pic_num = int(match_pic.group(1))
+                        if match_error:
+                            error = float(match_error.group(1))
+                            if error <= threshold:  # 再投影誤差が閾値以下のとき
+                                pic_nums.append(pic_num)
+                                errors.append(error)
+            return pic_nums, errors
+
+        except FileNotFoundError as e: # ファイルが存在しないとき
+            print(f"The file {text_path} was not found.")
+
+        except Exception as e: #その他のエラー
+            print(f"An error occurred: {e}") 
+                 
 def contatins_digit(file_path, pic_num_list):
     """
     file_pathにpic_numが含まれるかどうか
@@ -70,14 +113,17 @@ calibration = CameraCalibration(chessboard_size)
 images = glob.glob('./Calibration/chessboard_calibration_data/thermal/*.jpg')
 cal_count = 1
 pic_count = 62
-pic_num_list, error_num_list = read_file(file_name) 
+threshold = 0.25
+#pic_num_list, error_num_list = read_file(file_name) 
+pic_num_list, error_num_list = get_data_from_text(file_name, threshold)
+print(len(pic_num_list))
 index = 0 # pic_num_listとerror_numlistの添え字
 pic_list = [] # 再投影誤差用の写真番号を格納するリスト
 for fname in images:
     contains_bool = contatins_digit(fname, pic_num_list)
-    if contains_bool and error_num_list[index] <= 0.5:
-        # ファイルパスにpic_num_list[index]が含まれる, かつ
-        # error_num_list[index]が0.5より小さいとき
+    # ファイルパスにpic_num_list[index]が含まれる, かつ
+    # error_num_list[index]が0.5より小さいとき
+    if contains_bool:
         print("-----start add corners-----")
         finder = EllipseFinder(fname)
         corners = finder.run()
@@ -85,8 +131,8 @@ for fname in images:
             print(len(corners))
             calibration.add_corners(fname, corners)
             print(f'calibration count:', cal_count)
-            pic_num = re.findall(r'\d+', fname)[0]
-            pic_list.append(int(pic_num)) #　該当するファイルパスの写真の番号を格納する
+            #pic_num = re.findall(r'\d+', fname)[0]
+            #pic_list.append(int(pic_num)) #　該当するファイルパスの写真の番号を格納する
             cal_count += 1
 
     index += 1 # pic_num_listとerror_num_listの添え字を進める
@@ -101,5 +147,5 @@ print("リプロジェクションエラー:", ret)
 print("カメラ行列:\n", mtx)
 print("歪み係数:\n", dist)
 
-preojection_error = calibration.re_projection_error_and_save_file(pic_list)
+preojection_error = calibration.re_projection_error_and_save_file(pic_num_list)
 print("preojection error:", preojection_error)                                                          
