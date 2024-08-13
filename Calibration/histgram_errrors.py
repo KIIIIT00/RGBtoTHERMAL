@@ -37,9 +37,15 @@ def read_file(file_name):
         print(f"An error occurred: {e}")
 
 #file_name = './Calibration/re_projection_error_text.txt'
-rgb_file_name = './Calibration/rgb_re_projection.txt'
+rgb_file_name = './Calibration/again_re_projection_error_text.txt'
 
 errors = read_file(rgb_file_name)
+
+count = 0
+for error in errors:
+    count += error
+
+print(count/len(errors))
 
 # ヒストグラムの作成
 plt.figure(figsize=(10, 6))

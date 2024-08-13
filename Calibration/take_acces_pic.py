@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 from dynamixel_sdk import *
 from utils.DynamixelMX106 import DynamixelMX106
+from utils.DynamixelEX106 import DynamixelEX106
 from utils.SerialSetting import SerialSetting
 import os
 import time
@@ -26,16 +27,15 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
 OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
 OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 160
+rgbcount = thermalcount = 209
 
 # Dynamixel MX106の設定
-motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
-motor.enable_torque()
-motor.rotate_to_180()
-print(motor.get_present_position())
-motor.setting_speed(100)
-INIT_POS = 1024
-ROTATION_POS = 3072
+motor = DynamixelEX106(port_name='COM9', baudrate=57600, dxl_id=1)
+motor.cw_rotate_90()
+print(motor.read_position())
+motor.set_speed(100)
+INIT_POS = 579
+ROTATION_POS = 3517
 
 # 加速度センサの設定
 serial = SerialSetting(port_name='COM5', baud_rate=57600)
@@ -56,7 +56,7 @@ while True:
         
     key = cv2.waitKey(1)
     is_moving = motor.is_moving()
-    present_pos = motor.get_present_position()
+    present_pos = motor.read_position()
     print("is_moving", is_moving)
     #print("present_pos", present_pos)
 
@@ -69,9 +69,9 @@ while True:
 
     if not is_moving:
         # モータが動作していないとき
-        if INIT_POS - 3 <= present_pos and present_pos <= INIT_POS + 3:
+        if INIT_POS - 4 <= present_pos and present_pos <= INIT_POS + 4:
             # モータが初期位置に到達したとき
-            if 0.00<= y and y <= 0.05:
+            if -0.01<= y and y <= 0.05:
                 # x方向の加速度が0から0.02[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき
@@ -81,14 +81,17 @@ while True:
                 current = time.time() - start
                 if current >= 1.5:
                     # 1.5秒経過したとき
-                    rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
-                    cv2.imwrite(rgb_filename, rgb_frame)
-                    rgbcount += 1
-                    motor.rotate_to_180()
+                    thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
+                    cv2.imwrite(thermal_filename, thermal_frame)
+                    thermalcount += 1
+                    # rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
+                    # cv2.imwrite(rgb_filename, rgb_frame)
+                    # rgbcount += 1
+                    motor.ccw_rotate_90()
                     flag_init = False
                     flag_timer = False
 
-        elif ROTATION_POS - 3 <= present_pos and present_pos <= ROTATION_POS + 3:
+        elif ROTATION_POS - 4 <= present_pos and present_pos <= ROTATION_POS + 4:
             # モータが180°回転したとき
             if 0.00 <= y and y <= 0.05:
                 # x方向の加速度が-0.07から0[g]以下のとき
@@ -99,10 +102,13 @@ while True:
                     flag_timer = True
                 current = time.time() - start
                 if current >= 1.5:
-                    thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
-                    cv2.imwrite(thermal_filename, thermal_frame)
-                    thermalcount += 1
-                    motor.init_position()
+                    rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
+                    cv2.imwrite(rgb_filename, rgb_frame)
+                    rgbcount += 1
+                    # thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
+                    # cv2.imwrite(thermal_filename, thermal_frame)
+                    # thermalcount += 1
+                    motor.cw_rotate_90()
                     flag_init = True
                     flag_timer = False
 

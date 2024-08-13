@@ -1,7 +1,7 @@
 """
 モータが回転しているときの加速度センサの値を取得する
 """
-from utils.DynamixelMX106 import DynamixelMX106
+from utils.DynamixelEX106 import DynamixelEX106
 from utils.SerialSetting import SerialSetting
 from dynamixel_sdk import *
 import numpy as np
@@ -27,7 +27,7 @@ def check_convergence_accelerations(pre_acceleration, acceleration, match_count)
     return match_count
 
 # Dynamixel MX106の設定
-motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
+motor = DynamixelEX106(port_name='COM3', baud_rate=57600, motor_id=1)
 motor.enable_torque()
 print(motor.get_present_position())
 motor.init_position()
