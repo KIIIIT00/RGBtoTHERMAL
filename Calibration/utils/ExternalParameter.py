@@ -36,6 +36,38 @@ class ExternalParameterCalculator:
         print(self.corners2)
         return corners2
     
+    def get_projection_errors(self):
+        """
+        再投影誤差を計算する
+        
+        Returns
+        -------
+        procjection_error : float
+            再投影誤差
+        """
+        print(len(self.objpoints))
+        imgpoints2, _ = cv2.projectPoints(self.objp, self.rvecs, self.tvecs, self.mtx, self.dist)
+        self.imgpoints2 = imgpoints2
+        projection_error = cv2.norm(self.corners2, imgpoints2, cv2.NORM_L2) / len(self.imgpoints)
+        return projection_error
+    
+    def re_draw(self, img):
+        """
+        再投影されたポイントと元のコーナーを画像に描画して確認
+        """
+        for i in range(len(self.corners2)):
+            # 検出されたコーナーを緑で描画
+            corner = tuple(self.corners2[i].ravel().astype(int))
+            cv2.circle(img, corner, 5, (0, 255, 0), -1)  # 緑色
+            
+            # 再投影されたポイントを赤で描画
+            imgpoint = tuple(self.imgpoints2[i].ravel().astype(int))
+            cv2.circle(img, imgpoint, 5, (0, 0, 255), -1)  # 赤色
+        
+        cv2.imshow('Detected Corners (Green) and Reprojected Points (Red)', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
     def calculate_external_parameters(self, corners2):
         print("objpoints:", self.objp)
         print("object points shape:", self.objp.shape)
@@ -45,6 +77,8 @@ class ExternalParameterCalculator:
         print("dist:", self.dist)
         print("Calculating external parameters...")
         ret3, rvecs, tvecs = cv2.solvePnP(self.objp, corners2, self.mtx, self.dist)
+        self.rvecs = rvecs
+        self.tvecs = tvecs
         return ret3, rvecs, tvecs
     
     def write_to_txt(self, filename, rvecs, tvecs):

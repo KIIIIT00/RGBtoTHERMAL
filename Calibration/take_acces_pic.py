@@ -14,8 +14,8 @@ import time
 import keyboard
 
 # カメラの設定
-rgb_cap = cv2.VideoCapture(0)
-thermal_cap = cv2.VideoCapture(1)
+rgb_cap = cv2.VideoCapture(1)
+thermal_cap = cv2.VideoCapture(0)
 
 # 各カメラの撮影時の解像度の設定
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -27,15 +27,14 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
 OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
 OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 209
-
+rgbcount = thermalcount = 325
 # Dynamixel MX106の設定
 motor = DynamixelEX106(port_name='COM9', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
 print(motor.read_position())
 motor.set_speed(100)
-INIT_POS = 579
-ROTATION_POS = 3517
+INIT_POS =598
+ROTATION_POS = 3515
 
 # 加速度センサの設定
 serial = SerialSetting(port_name='COM5', baud_rate=57600)
@@ -93,7 +92,7 @@ while True:
 
         elif ROTATION_POS - 4 <= present_pos and present_pos <= ROTATION_POS + 4:
             # モータが180°回転したとき
-            if 0.00 <= y and y <= 0.05:
+            if 0-0.04 <= y and y <= 0.05:
                 # x方向の加速度が-0.07から0[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき

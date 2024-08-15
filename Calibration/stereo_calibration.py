@@ -33,10 +33,10 @@ rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
 # 赤外線画像読み込み
-thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_202.jpg'
+thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_325.jpg'
 
 # RGB画像読み込み
-rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_202.jpg'
+rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_325.jpg'
 
 rgb_gray = cv2.imread(rgb_image_path, cv2.COLOR_BGR2GRAY)
 
@@ -61,6 +61,17 @@ stereo_calibration.add_corners(rgb_image_path, rgb_corners, thermal_image_path, 
 
 # キャリブレーション
 stereo_calibration.stereo_calibration()
+
+if len(thermal_corners) == 50 and len(rgb_corners) == 50:
+        # プロジェクション誤差
+        projection_thermal, projection_rgb = stereo_calibration.get_projection_error()
+
+        # エピポーラ誤差
+        epipolar_error = stereo_calibration.get_epipolar_error()
+
+print("projection_thermal:", projection_thermal)
+print("projection_rgb:", projection_rgb)
+print("epipolar_error:", epipolar_error)
 
 # プロット
 stereo_calibration.plot_cameras()

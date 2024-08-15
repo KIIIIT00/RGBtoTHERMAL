@@ -74,13 +74,83 @@ class StereoCameraCalibration:
         """
         flags = cv2.CALIB_FIX_INTRINSIC
         criteria_stereo = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
-        retval, thermalMatrix, distCoeffs_tehrmal, rgbMatrix, distCoeffs_thermal, R, T, E, F = cv2.stereoCalibrate(
+        retval, thermalMatrix, distCoeffs_thermal, rgbMatrix, distCoeffs_rgb, R, T, E, F = cv2.stereoCalibrate(
         self.objpoints, self.imgpoints_thermal,  self.imgpoints_rgb, self.mtx_thermal, self.dist_thermal, self.mtx_rgb, self.dist_rgb, (640, 512), criteria=criteria_stereo, flags=flags
         )
         self.R = R
         self.T = T
+        self.E = E
+        self.F = F
+        self.retval = retval
+        self.thermalMatrix = thermalMatrix
+        self.distCoeffs_thermal = distCoeffs_thermal
+        self.rgbMatrix = rgbMatrix
+        self.distCoeffs_rgb = distCoeffs_rgb
+        
         print("回転行列 R:", R)
         print("並進ベクトル T:", T)
+    
+    def get_projection_error(self):
+        """
+        プロジェクション誤差を算出し，取得する
+        
+        Returns
+        -------
+        projection_error : プロジェクション誤差
+        """
+        total_thermal_error = 0
+        total_rgb_error = 0
+        for i in range(len(self.objpoints)):
+            imgpoint2_thermal, _ = cv2.projectPoints(self.objpoints[i], self.R, self.T, self.thermalMatrix, self.distCoeffs_thermal)
+            error_thermal = cv2.norm(self.imgpoints_thermal[i], imgpoint2_thermal, cv2.NORM_L2)/ len(imgpoint2_thermal)
+            
+            imgpoint2_rgb, _ = cv2.projectPoints(self.objpoints[i], self.R, self.T, self.rgbMatrix, self.distCoeffs_rgb)
+            error_rgb = cv2.norm(self.imgpoints_rgb[i], imgpoint2_rgb, cv2.NORM_L2) / len(imgpoint2_rgb)
+            
+            total_thermal_error += error_thermal
+            total_rgb_error += error_rgb
+        
+        projection_thermal = total_thermal_error / len(self.objpoints)
+        projection_rgb = total_rgb_error / len(self.objpoints)
+        return projection_thermal, projection_rgb
+    
+    def get_epipolar_error(self):
+        """
+        エピポーラ誤差を算出し，取得する
+        
+        Returns
+        -------
+        epipolar_error : エピポーラ誤差
+        """
+        #print("self.imgpoints_thermal:", self.imgpoints_thermal)
+        #print("self.imgpoints_rgb:", self.imgpoints_rgb)
+        #print("self.imgpoints_thermal.shape:", self.imgpoints_thermal.shape)
+        #print("self.imgpoints_rgb.shape:", self.imgpoints_rgb.shape)
+        
+        # RGB画像と赤外線画像での対応点をNumpy配列に変換
+        self.img_points_thermal = np.array(self.imgpoints_thermal, dtype=np.float32).reshape(-1, 2)
+        self.img_points_rgb = np.array(self.imgpoints_rgb, dtype=np.float32).reshape(-1, 2)
+        # エピポーラ線を計算
+        lines_thermal = cv2.computeCorrespondEpilines(self.img_points_thermal.reshape(-1, 1, 2), 2, self.F)
+        lines_thermal = lines_thermal.reshape(-1, 3)
+        
+        lines_rgb = cv2.computeCorrespondEpilines(self.img_points_rgb.reshape(-1, 1, 2), 1, self.F)
+        lines_rgb = lines_rgb.reshape(-1, 3)
+        
+        # エポピーラ誤差を計算
+        error = 0
+        for i in range(len(lines_thermal)):
+            # 赤外線画像の対応点とRGB画像のエポピーラ線との距離
+            thermal_error = abs(lines_thermal[i][0] * self.img_points_thermal[i][0] + lines_rgb[i][1] * self.img_points_thermal[i][1] + lines_thermal[i][2])
+            thermal_error /= np.sqrt(lines_thermal[i][0] ** 2 + lines_thermal[i][1] ** 2)
+            
+            # RGB画像の対応店と赤外線画像のエピポーラ線との距離
+            rgb_error = abs(lines_rgb[i][0] * self.img_points_rgb[i][0] + lines_rgb[i][1] * self.img_points_rgb[i][1] + lines_rgb[i][2])
+            rgb_error /= np.sqrt(lines_rgb[i][0] ** 2 + lines_rgb[i][1] ** 2)
+            
+            error += (thermal_error + rgb_error) / 2
+        epipolar_error = error / len(lines_thermal)
+        return epipolar_error
     
     def plot_cameras(self):
         """
