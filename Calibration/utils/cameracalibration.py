@@ -259,7 +259,7 @@ class CameraCalibration:
             print(":", error)
             mean_error += error
         
-        filename = './Calibration/again_re_projection_error_text.txt'
+        filename = './Calibration/again2_re_projection_error_text.txt'
         try:
             with open(filename, 'w', encoding='utf-8') as f:
                 for i, error in enumerate(error_list):
@@ -267,6 +267,13 @@ class CameraCalibration:
             print(f"再投影誤差を記録しました: {filename}")
         except Exception as e:
             print(f"再投影誤差記録に失敗しました: {e}")
+        
+        # imagpointsの保存
+        for num, ererror in enumerate(error_list):
+            numpy_filename = './Calibration/projection_imgpoints'+str(pic_list[num])+'.npy'
+            np.save(numpy_filename,self.imgpoints[num])
         return mean_error / len(self.objpoints)
+
     
+
 

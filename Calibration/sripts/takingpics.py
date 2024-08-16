@@ -11,7 +11,7 @@ count = 0
 
 # カメラの解像度を設定
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 while True:
     _, frame = cap.read()

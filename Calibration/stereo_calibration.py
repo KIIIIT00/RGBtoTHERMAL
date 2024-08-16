@@ -33,10 +33,10 @@ rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
 # 赤外線画像読み込み
-thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_325.jpg'
+thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_216.jpg'
 
 # RGB画像読み込み
-rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_325.jpg'
+rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_216.jpg'
 
 rgb_gray = cv2.imread(rgb_image_path, cv2.COLOR_BGR2GRAY)
 

@@ -107,7 +107,7 @@ def contatins_digit(file_path, pic_num_list):
             return False
 
 
-file_name = './Calibration/re_projection_error_text.txt'
+file_name = './Calibration/again_re_projection_error_text.txt'
 chessboard_size = (5, 5)
 calibration = CameraCalibration(chessboard_size)
 images = glob.glob('./Calibration/chessboard_calibration_data/thermal/*.jpg')

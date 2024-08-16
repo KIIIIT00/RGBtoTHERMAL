@@ -14,9 +14,9 @@ count = 1
 flag_init = True
 
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-rgb_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
+rgb_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 thermal_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
+thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # Dynamixel MX106の設定
 motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
