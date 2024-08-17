@@ -51,7 +51,7 @@ class ExternalParameterCalculator:
         projection_error = cv2.norm(self.corners2, imgpoints2, cv2.NORM_L2) / len(self.imgpoints)
         return projection_error
     
-    def re_draw(self, img):
+    def re_draw(self, img, file_name):
         """
         再投影されたポイントと元のコーナーを画像に描画して確認
         """
@@ -65,8 +65,22 @@ class ExternalParameterCalculator:
             cv2.circle(img, imgpoint, 5, (0, 0, 255), -1)  # 赤色
         
         cv2.imshow('Detected Corners (Green) and Reprojected Points (Red)', img)
+        # 指定のファイル名として保存する
+        #cv2.imwrite(file_name, img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+        
+    def save_imgpoints2_npy(self, file_name):
+        """
+        再投影されたimgpointsをnpyファイルに保存
+        """
+        np.save(file_name, self.imgpoints2)
+        
+    def save_corners_npy(self, file_name):
+        """
+        検出されたコーナーをnpyファイルに保存
+        """
+        np.save(file_name, self.corners2)
         
     def calculate_external_parameters(self, corners2):
         print("objpoints:", self.objp)

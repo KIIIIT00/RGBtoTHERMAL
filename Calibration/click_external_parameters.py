@@ -8,12 +8,12 @@ from utils.EllipseFinder import EllipseFinder
 from utils.ExternalParameter import ExternalParameterCalculator
 
 chessboard_size = (5, 5)
-thermal_mtx = np.array([791.14628399, 0, 283.04321964,
-                        0, 788.08426377, 242.27129708,
-                        0 ,0 ,1]).reshape(3, 3)
+thermal_mtx = np.array([770.61648493, 0, 336.94307903,
+                         0, 774.81856137, 203.23000118,
+                         0 ,0 ,1]).reshape(3, 3)
 #print("thermal_mtx:", thermal_mtx.shape)
 # 赤外線カメラの内部パラメータ
-thermal_dist = np.array([-5.46472879e-01, 6.68748555e+00, -8.19215907e-03, -1.83545164e-02, -2.56935074e+01])
+thermal_dist = np.array([2.64764544e-01, -4.18415905e+00, -2.55476500e-02, 1.19220012e-03, 1.52325890e+01])
 thermal_mtx = thermal_mtx.astype(np.float32)
 thermal_dist = thermal_dist.astype(np.float32)
 
@@ -23,7 +23,7 @@ rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214
 rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
-image_count = 250
+image_count = 235
 # 赤外線画像読み込み
 thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
 thermal_img = cv2.imread(thermal_image_path)
@@ -71,7 +71,9 @@ print("corner:", rgb_corners)
 print("--------------------")
 
 # 画像座標
-image_point = np.array([[thermal_corners[0]], [thermal_corners[1]]], dtype=np.float32)
+
+# image_point = np.array([[thermal_corners[0]], [thermal_corners[1]]], dtype=np.float32)
+image_point = np.array([[0],[0]], dtype=np.float32)
 # 画像座標をカメラ座標に変換
 #camera_point = calibration.image_to_camera(image_point)
 camera_point = thermal_calibration.undistort_points(image_point)
@@ -84,7 +86,8 @@ camera_position, camera_direction = thermal_calibration.world_in_camerapoint(ima
 print("ワールド座標:", camera_position)# 3Dプロット
 
 # RGB画像座標
-rgb_image_point = np.array([[rgb_corners[0]], [rgb_corners[1]]], dtype=np.float32)
+# rgb_image_point = np.array([[rgb_corners[0]], [rgb_corners[1]]], dtype=np.float32)
+rgb_image_point = np.array([[0], [0]], dtype=np.float32)
 # 画像座標をカメラ座標に変換
 rgb_camera_point = rgb_calibration.undistort_points(rgb_image_point)
 print("RGBカメラ座標:", rgb_camera_point)
@@ -103,8 +106,8 @@ rgb_projection = rgb_calibration.get_projection_errors()
 print("thermal projection:", thermal_projection)
 print("rgb projection:", rgb_projection)
 
-thermal_calibration.re_draw(thermal_img)
-rgb_calibration.re_draw(rgb_img)
+thermal_calibration.re_draw(thermal_img, 's')
+rgb_calibration.re_draw(rgb_img, 's')
 
 # ワールド座標の点をプロット
 #ax.scatter(world_point[0], world_point[1], world_point[2], c='r', marker='o')

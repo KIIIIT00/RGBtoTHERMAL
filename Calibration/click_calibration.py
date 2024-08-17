@@ -139,7 +139,7 @@ for fname in images:
     pic_count += 1
     print("-----finish add corners-----")
 
-image_size = (640, 512)
+image_size = (640, 480)
 ret, mtx, dist, rvecs, tvecs = calibration.calibrate(image_size)
 
 print("キャリブレーション結果:")
