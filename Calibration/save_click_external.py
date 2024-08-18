@@ -12,12 +12,12 @@ from utils.ExternalParameter import ExternalParameterCalculator
 
     
 chessboard_size = (5, 5)
-thermal_mtx = np.array([770.61648493, 0, 336.94307903,
-                         0, 774.81856137, 203.23000118,
-                         0 ,0 ,1]).reshape(3, 3)
+thermal_mtx = np.array([773.41392054, 0, 329.198468,
+                        0, 776.32513558, 208.53439152,
+                        0 ,0 ,1]).reshape(3, 3)
 #print("thermal_mtx:", thermal_mtx.shape)
 # 赤外線カメラの内部パラメータ
-thermal_dist = np.array([2.64764544e-01, -4.18415905e+00, -2.55476500e-02, 1.19220012e-03, 1.52325890e+01])
+thermal_dist = np.array([1.67262996e-01, -2.94477097e+00, -2.30689758e-02, -1.33138573e-03, 1.02082943e+01])
 thermal_mtx = thermal_mtx.astype(np.float32)
 thermal_dist = thermal_dist.astype(np.float32)
 
@@ -28,8 +28,8 @@ rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
 #image_count = 216
-start_count = 303
-finish_count = 327
+start_count = 442
+finish_count = 444
 for image_count in range(start_count, finish_count):
     # 赤外線画像読み込み
     thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
@@ -162,12 +162,12 @@ for image_count in range(start_count, finish_count):
 
     # カメラの視線方向をプロット
     ax.quiver(camera_position[0], camera_position[1], camera_position[2], 
-          camera_direction[0], camera_direction[1], camera_direction[2], 
-          length=5.0, color='b', label=' Thermal Camera Direction')
+            camera_direction[0], camera_direction[1], camera_direction[2], 
+            length=5.0, color='b', label=' Thermal Camera Direction')
 
     ax.quiver(rgb_camera_position[0], rgb_camera_position[1], rgb_camera_position[2], 
-         rgb_camera_direction[0], rgb_camera_direction[1], rgb_camera_direction[2], 
-         length=5.0, color='r', label='RGB Camera Direction')
+            rgb_camera_direction[0], rgb_camera_direction[1], rgb_camera_direction[2], 
+            length=5.0, color='r', label='RGB Camera Direction')
     
     # ラベルを設定
     ax.set_xlabel('X')

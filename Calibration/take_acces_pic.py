@@ -19,21 +19,21 @@ thermal_cap = cv2.VideoCapture(0)
 
 # 各カメラの撮影時の解像度の設定
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-rgb_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
+rgb_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 thermal_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 512)
+thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # 出力フォルダ
 OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
 OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 325
+rgbcount = thermalcount = 424
 # Dynamixel MX106の設定
-motor = DynamixelEX106(port_name='COM9', baudrate=57600, dxl_id=1)
+motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
 print(motor.read_position())
 motor.set_speed(100)
-INIT_POS =598
+INIT_POS =580
 ROTATION_POS = 3515
 
 # 加速度センサの設定

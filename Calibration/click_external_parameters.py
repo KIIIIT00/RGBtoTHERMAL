@@ -8,12 +8,12 @@ from utils.EllipseFinder import EllipseFinder
 from utils.ExternalParameter import ExternalParameterCalculator
 
 chessboard_size = (5, 5)
-thermal_mtx = np.array([770.61648493, 0, 336.94307903,
-                         0, 774.81856137, 203.23000118,
-                         0 ,0 ,1]).reshape(3, 3)
+thermal_mtx = np.array([773.41392054, 0, 329.198468,
+                        0, 776.32513558, 208.53439152,
+                        0 ,0 ,1]).reshape(3, 3)
 #print("thermal_mtx:", thermal_mtx.shape)
 # 赤外線カメラの内部パラメータ
-thermal_dist = np.array([2.64764544e-01, -4.18415905e+00, -2.55476500e-02, 1.19220012e-03, 1.52325890e+01])
+thermal_dist = np.array([1.67262996e-01, -2.94477097e+00, -2.30689758e-02, -1.33138573e-03, 1.02082943e+01])
 thermal_mtx = thermal_mtx.astype(np.float32)
 thermal_dist = thermal_dist.astype(np.float32)
 

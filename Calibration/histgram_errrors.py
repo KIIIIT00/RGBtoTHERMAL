@@ -37,7 +37,7 @@ def read_file(file_name):
         print(f"An error occurred: {e}")
 
 #file_name = './Calibration/re_projection_error_text.txt'
-rgb_file_name = './Calibration/again3_re_projection_error_text.txt'
+rgb_file_name = './Calibration/chessboard_calibration_data/thermal_data/again_projection.txt'
 
 errors = read_file(rgb_file_name)
 
@@ -52,6 +52,6 @@ plt.figure(figsize=(10, 6))
 plt.hist(errors, bins='auto', edgecolor='black')
 plt.xlabel('再投影誤差値[pixels]')
 plt.ylabel('頻度')
-plt.title('RGBカメラの再投影誤差の頻度分布')
+plt.title('赤外線カメラの再投影誤差の頻度分布')
 plt.grid(True)
 plt.show()

@@ -63,6 +63,18 @@ class StereoCameraCalibration:
         self.corners_rgb = corners2_rgb
         self.corners_thermal = corners2_thermal
     
+    def load_imapoints_npy(self, thermal_npy, rgb_npy):
+        """
+        赤外線とRGBの二次元座標をnpyファイルから取得
+        """
+        corners_thermal = np.load(thermal_npy)
+        corners_thermal = corners_thermal.astype(np.float32)
+        corners_rgb = np.load(rgb_npy)
+        corners_rgb = corners_rgb.astype(np.float32)
+        self.imgpoints_thermal.append(corners_thermal)
+        self.imgpoints_rgb.append(corners_rgb)
+        self.objpoints.append(self.objp)
+        
     def stereo_calibration(self):
         """
         ステレオカメラのキャリブレーション
