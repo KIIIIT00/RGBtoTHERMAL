@@ -218,12 +218,14 @@ class StereoCameraCalibration:
         ax.scatter(rgb_center[0], rgb_center[1], rgb_center[2], color='b', label="RGB Camera")
 
         # カメラの向きをプロット
-        def plot_axes(ax, origin, axes, color):
+        def plot_axes(ax, origin, axes, color, labels):
             for i in range(3):
-                ax.quiver(origin[0], origin[1], origin[2], axes[0, i], axes[1, i], axes[2, i], color=color)
-            
-        plot_axes(ax, thermal_center, thermal_axes, 'r')
-        plot_axes(ax, rgb_center, rgb_axes, 'b')
+                ax.quiver(origin[0], origin[1], origin[2], axes[0, i], axes[1, i], axes[2, i], color=color[i], label = labels[i])
+        
+        axes_colors = ['r', 'g', 'b']
+        axes_labels = ['X', 'Y', ' Z']
+        plot_axes(ax, thermal_center, thermal_axes, axes_colors, axes_labels)
+        plot_axes(ax, rgb_center, rgb_axes, axes_colors, axes_labels)
 
         ax.set_xlabel('X')
         ax.set_ylabel('Y')

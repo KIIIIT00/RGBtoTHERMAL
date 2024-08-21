@@ -182,5 +182,12 @@ class ExternalParameterCalculator:
         camera_direction = np.dot(np.linalg.inv(R), np.array([[0], [0], [1]]))
         return camera_position, camera_direction
     
-    
-    
+    def world_coordinates(self, image_point, rotation_matrix):
+        """
+        ワールド座標系のx,y,z軸を求める
+        """
+        R, _ = cv2.Rodrigues(rotation_matrix)
+        x_axis = np.dot(np.linalg.inv(R), np.array([[1], [0], [0]]))
+        y_axis = np.dot(np.linalg.inv(R), np.array([[0], [1], [0]]))
+        z_axis = np.dot(np.linalg.inv(R), np.array([[0], [0], [1]]))
+        return x_axis, y_axis, z_axis

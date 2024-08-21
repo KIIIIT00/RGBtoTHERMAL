@@ -21,7 +21,8 @@ while True:
     # 繰り返しから抜けるためのif文
     key = cv2.waitKey(1)
     if key == ord('a'):
-        cv2.imwrite('./Calibration/chessboard_calibration_data/rgb/'f'pic{count}.jpg', frame)
+        cv2.imwrite('./Calibration/'f'pic{count}.jpg', frame)
+        # cv2.imwrite('./Calibration/chessboard_calibration_data/rgb/'f'pic{count}.jpg', frame)
         #cv2.imwrite('./Calibration/circlegrid_calibration_data/rgb/'f'pic{count}.jpg', frame)
         count += 1
 
