@@ -198,7 +198,7 @@ class ProjectionExternalParameter():
         self.projection_corners_draw(self.rgb_imgpoints, rgb_imgpoints2, rgb_img)
 
 if __name__ == '__main__':
-    image_count = 450
+    image_count = 573
     # 画像のパス
     thermal_img_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
     rgb_img_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_'+str(image_count)+'.jpg'

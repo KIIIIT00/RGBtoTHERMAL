@@ -27,7 +27,7 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
 OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 565
+rgbcount = thermalcount = 605
 # Dynamixel MX106の設定
 motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
