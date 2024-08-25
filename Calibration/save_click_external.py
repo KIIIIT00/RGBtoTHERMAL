@@ -28,8 +28,8 @@ rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
 #image_count = 216
-start_count = 608
-finish_count = 621
+start_count = 711
+finish_count = 720
 for image_count in range(start_count, finish_count):
     # 赤外線画像読み込み
     thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
