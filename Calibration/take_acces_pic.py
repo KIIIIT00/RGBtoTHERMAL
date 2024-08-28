@@ -13,6 +13,26 @@ import os
 import time
 import keyboard
 
+def undistort(img, mtx, dist):
+        h, w = img.shape[:2]
+        newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+        dst = cv2.undistort(img, mtx, dist, None, newcameramtx)
+        x, y, w, h = roi
+        dst = dst[y:y+h, x:x+w]
+        return dst
+    
+# 赤外線カメラの内部パラメータ
+thermal_mtx = np.array([773.41392054, 0, 329.198468,
+                        0, 776.32513558, 208.53439152,
+                        0 ,0 ,1]).reshape(3, 3)
+thermal_dist = np.array([1.67262996e-01, -2.94477097e+00, -2.30689758e-02, -1.33138573e-03, 1.02082943e+01])
+
+# RGBカメラの内部パラメータ
+rgb_mtx = np.array([621.80090236, 0, 309.61717191, 
+                    0, 624.22815912, 234.27475688, 
+                    0, 0, 1]).reshape(3,3)
+rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
+
 # カメラの設定
 rgb_cap = cv2.VideoCapture(1)
 thermal_cap = cv2.VideoCapture(0)
@@ -24,16 +44,20 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 # 出力フォルダ
-OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
-OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
+# OUTPUT_THERMAL = './Calibration/ExternalParameter_Chessboard/THERMAL/'
+# OUTPUT_RGB = './Calibration/ExternalParameter_Chessboard/RGB/'
+
+#視野合わせる用のディレクトリ
+OUTPUT_THERMAL = './Calibration/FOV/THERMAL/'
+OUTPUT_RGB = './Calibration/FOV/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 723
+rgbcount = thermalcount = 40
 # Dynamixel MX106の設定
 motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
 print(motor.read_position())
 motor.set_speed(100)
-INIT_POS =580
+INIT_POS = 580
 ROTATION_POS = 3515
 
 # 加速度センサの設定
@@ -49,7 +73,10 @@ while True:
 
     _, rgb_frame = rgb_cap.read()
     _, thermal_frame = thermal_cap.read()
-
+    
+    rgb_frame = undistort(rgb_frame, rgb_mtx, rgb_dist)
+    thermal_frame = undistort(thermal_frame, thermal_mtx, thermal_dist)
+    
     cv2.imshow('RGB', rgb_frame)
     cv2.imshow('Thermal', thermal_frame)
         
@@ -70,7 +97,7 @@ while True:
         # モータが動作していないとき
         if INIT_POS - 4 <= present_pos and present_pos <= INIT_POS + 4:
             # モータが初期位置に到達したとき
-            if -0.03 <= y and y <= 0.05:
+            if -0.03 <= y and y <= 0.11:
                 # x方向の加速度が0から0.02[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき

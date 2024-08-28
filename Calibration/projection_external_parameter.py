@@ -198,16 +198,22 @@ class ProjectionExternalParameter():
         self.projection_corners_draw(self.rgb_imgpoints, rgb_imgpoints2, rgb_img)
 
 if __name__ == '__main__':
-    image_count = 714
+    image_count = 8
     # 画像のパス
-    thermal_img_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
-    rgb_img_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_'+str(image_count)+'.jpg'
+    # thermal_img_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
+    # rgb_img_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_'+str(image_count)+'.jpg'
+    thermal_img_path = './Calibration/FOV/THERMAL/thermal_'+str(image_count) + '.jpg'
+    rgb_img_path = './Calibration/FOV/RGB/rgb_'+str(image_count)+'.jpg'
     thermal_img = cv2.imread(thermal_img_path)
     rgb_img = cv2.imread(rgb_img_path)
-    thermal_imgpoints2_npy = './Calibration/Calibration_result/external/thermal_imgpoints2_'+str(image_count) + '.npy'
-    thermal_corners_npy = './Calibration/Calibration_result/external/thermal_corners_'+str(image_count) + '.npy'
-    rgb_imgpoints2_npy = './Calibration/Calibration_result/external/rgb_imgpoints2_'+str(image_count) + '.npy'
-    rgb_corners_npy = './Calibration/Calibration_result/external/rgb_corners_'+str(image_count) + '.npy'
+    # thermal_imgpoints2_npy = './Calibration/Calibration_result/external/thermal_imgpoints2_'+str(image_count) + '.npy'
+    # thermal_corners_npy = './Calibration/Calibration_result/external/thermal_corners_'+str(image_count) + '.npy'
+    # rgb_imgpoints2_npy = './Calibration/Calibration_result/external/rgb_imgpoints2_'+str(image_count) + '.npy'
+    # rgb_corners_npy = './Calibration/Calibration_result/external/rgb_corners_'+str(image_count) + '.npy'
+    thermal_imgpoints2_npy = './Calibration/FOV/external/thermal_imgpoints2_'+str(image_count) + '.npy'
+    thermal_corners_npy = './Calibration/FOV/external/thermal_corners_'+str(image_count) + '.npy'
+    rgb_imgpoints2_npy = './Calibration/FOV/external/rgb_imgpoints2_'+str(image_count) + '.npy'
+    rgb_corners_npy = './Calibration/FOV/external/rgb_corners_'+str(image_count) + '.npy'
     external_para = ProjectionExternalParameter(thermal_imgpoints2_npy, rgb_imgpoints2_npy)
     #external_para = ProjectionExternalParameter(thermal_corners_npy, rgb_corners_npy)
     external_para.run(thermal_img, rgb_img)    

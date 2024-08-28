@@ -27,14 +27,13 @@ def check_convergence_accelerations(pre_acceleration, acceleration, match_count)
     return match_count
 
 # Dynamixel MX106の設定
-motor = DynamixelEX106(port_name='COM3', baud_rate=57600, motor_id=1)
+motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.enable_torque()
-print(motor.get_present_position())
-motor.init_position()
-print(motor.get_present_position())
-motor.setting_speed(100)
-INIT_POS = 1024
-ROTATION_POS = 3072
+motor.set_speed(100)
+motor.cw_rotate_90()
+# time.sleep(3)
+INIT_POS = 579
+ROTATION_POS = 3517
 
 # モータの現在位置がINIT_POSにあるかどうか
 flag_init = True
@@ -65,9 +64,11 @@ start_time = time.time()
 while True:
     current_time = time.time() - start_time
     time_stamps.append(current_time)
-    present_pos = motor.get_present_position()
+    present_pos = motor.read_position()
+    print("present_pos:", present_pos)
     accelerometer_data = serial.read_accelerometer()
     x, y, z = accelerometer_data
+    y = y * 9.8
     print('x:', x)
     print('y:', y)
     print('z:', z)
@@ -88,7 +89,7 @@ while True:
     #             motor.rotate_to_180()
 
     if not is_moving:
-        if INIT_POS - 2 <= present_pos and present_pos <= INIT_POS + 2:
+        if INIT_POS - 3 <= present_pos and present_pos <= INIT_POS + 4:
             # if not flag_timer:
             #     print('------------ start ----------------------')
             #     start = time.time()
@@ -99,10 +100,10 @@ while True:
             if match_count >= 3:
                 print('------------ finish ----------------------')
                 # 3秒経過したとき
-                motor.rotate_to_180()
+                motor.ccw_rotate_90()
                 flag_init = False
                 flag_timer = False
-        elif ROTATION_POS - 2 <= present_pos and present_pos <= ROTATION_POS + 2:
+        elif ROTATION_POS - 3 <= present_pos and present_pos <= ROTATION_POS + 3:
             # if not flag_timer:
             #     print('------------ start rotation ----------------------')
             #     start = time.time()
@@ -113,7 +114,7 @@ while True:
             if match_count >= 3:
                 print('------------ finish rotation ----------------------')
                 # 3秒経過したとき
-                motor.init_position()
+                motor.cw_rotate_90()
                 flag_init = True
                 flag_timer = False
 
@@ -140,20 +141,20 @@ fig, ax1 = plt.subplots()
 
 # 角度のプロット
 ax1.set_xlabel('時間[s]')
-ax1.set_ylabel('現在位置', color='tab:blue')
-ax1.plot(time_stamps, motor_angles, color='tab:blue', label='モータの現在位置')
-ax1.tick_params(axis = 'y', labelcolor='tab:blue')
+ax1.set_ylabel('現在の位置')
+ax1.plot(time_stamps, motor_angles, color='tab:blue', label='Dynamixel EX-106+の現在の位置')
+ax1.tick_params(axis = 'y')
 
 # 加速度のプロット
 ax2 = ax1.twinx()
-ax2.set_ylabel('加速度[g]')
-ax2.plot(time_stamps, motor_accelerations_x, color='tab:red', label='加速度 X軸')
-ax2.plot(time_stamps, motor_accelerations_y, color='tab:green', label='加速度 Y軸')
-ax2.plot(time_stamps, motor_accelerations_z, color='tab:orange', label='加速度 Z軸')
+ax2.set_ylabel('加速度[m/s²] ')
+#ax2.plot(time_stamps, motor_accelerations_x, color='tab:red', label='加速度センサのX軸')
+ax2.plot(time_stamps, motor_accelerations_y, color='tab:green', label='加速度')
+#ax2.plot(time_stamps, motor_accelerations_z, color='tab:orange', label='加速度センサのZ軸')
 ax2.tick_params(axis='y')
 
 # グラフのタイトル
-plt.title('Dynamixelの関節モードにおける角度と3軸加速度')
+plt.title('Dynamixel EX-106+の関節モードにおける現在の位置と加速度')
 
 # レジェンドの追加
 fig.tight_layout()

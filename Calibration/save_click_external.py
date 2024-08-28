@@ -28,15 +28,17 @@ rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
 #image_count = 216
-start_count = 711
-finish_count = 720
+start_count = 27
+finish_count = 37
 for image_count in range(start_count, finish_count):
     # 赤外線画像読み込み
-    thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
+    # thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
+    thermal_image_path = './Calibration/FOV/THERMAL/thermal_'+str(image_count) + '.jpg'
     thermal_img = cv2.imread(thermal_image_path)
 
     # RGB画像読み込み
-    rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_'+str(image_count)+'.jpg'
+    # rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_'+str(image_count)+'.jpg'
+    rgb_image_path = './Calibration/FOV/RGB/rgb_'+str(image_count)+'.jpg'
     rgb_img = cv2.imread(rgb_image_path)
 
     # 赤外線画像におけるコーナーの検知
@@ -107,7 +109,8 @@ for image_count in range(start_count, finish_count):
     print("rgb projection:", rgb_projection)
     
     # カメラの位置や再投影誤差などをテキストファイルに保存
-    save_txt =  './Calibration/Calibration_result/external/cameras_position'+str(image_count) + '.txt'
+    # save_txt =  './Calibration/Calibration_result/external/cameras_position'+str(image_count) + '.txt'
+    save_txt =  './Calibration/FOV/external/cameras_position'+str(image_count) + '.txt'
     with open(save_txt, 'w') as file:
         file.write("Thermal Camera Position:\n")
         file.write(f"x:{str(camera_position[0])}, y:{str(camera_position[1])}, z:{str(camera_position[2])} \n")
@@ -126,16 +129,22 @@ for image_count in range(start_count, finish_count):
     ax = fig.add_subplot(111, projection='3d')
     
     # 再投影した画像を保存するファイル名
-    thermal_projection_img = './Calibration/Calibration_result/external/thermal_projection_'+str(image_count) + '.jpg'
-    rgb_projection_img = './Calibration/Calibration_result/external/rgb_projection_'+str(image_count) + '.jpg'
+    # thermal_projection_img = './Calibration/Calibration_result/external/thermal_projection_'+str(image_count) + '.jpg'
+    # rgb_projection_img = './Calibration/Calibration_result/external/rgb_projection_'+str(image_count) + '.jpg'
+    thermal_projection_img = './Calibration/FOV/external/thermal_projection_'+str(image_count) + '.jpg'
+    rgb_projection_img = './Calibration/FOV/external/rgb_projection_'+str(image_count) + '.jpg'
     thermal_calibration.re_draw(thermal_img, thermal_projection_img)
     rgb_calibration.re_draw(rgb_img, rgb_projection_img)
     
     # npyファイルに保存する
-    thermal_imgpoints2_npy = './Calibration/Calibration_result/external/thermal_imgpoints2_'+str(image_count) + '.npy'
-    thermal_corners_npy = './Calibration/Calibration_result/external/thermal_corners_'+str(image_count) + '.npy'
-    rgb_imgpoints2_npy = './Calibration/Calibration_result/external/rgb_imgpoints2_'+str(image_count) + '.npy'
-    rgb_corners_npy = './Calibration/Calibration_result/external/rgb_corners_'+str(image_count) + '.npy'
+    # thermal_imgpoints2_npy = './Calibration/Calibration_result/external/thermal_imgpoints2_'+str(image_count) + '.npy'
+    # thermal_corners_npy = './Calibration/Calibration_result/external/thermal_corners_'+str(image_count) + '.npy'
+    # rgb_imgpoints2_npy = './Calibration/Calibration_result/external/rgb_imgpoints2_'+str(image_count) + '.npy'
+    # rgb_corners_npy = './Calibration/Calibration_result/external/rgb_corners_'+str(image_count) + '.npy'
+    thermal_imgpoints2_npy = './Calibration/FOV/external/thermal_imgpoints2_'+str(image_count) + '.npy'
+    thermal_corners_npy = './Calibration/FOV/external/thermal_corners_'+str(image_count) + '.npy'
+    rgb_imgpoints2_npy = './Calibration/FOV/external/rgb_imgpoints2_'+str(image_count) + '.npy'
+    rgb_corners_npy = './Calibration/FOV/external/rgb_corners_'+str(image_count) + '.npy'
     thermal_calibration.save_imgpoints2_npy(thermal_imgpoints2_npy)
     thermal_calibration.save_corners_npy(thermal_corners_npy)
     rgb_calibration.save_imgpoints2_npy(rgb_imgpoints2_npy)
@@ -175,7 +184,8 @@ for image_count in range(start_count, finish_count):
     ax.set_zlabel('Z')
     
     # プロットした画像を保存する
-    plot_img =  './Calibration/Calibration_result/external/cameras_plot'+str(image_count) + '.jpg'
+    # plot_img =  './Calibration/Calibration_result/external/cameras_plot'+str(image_count) + '.jpg'
+    plot_img =  './Calibration/FOV/external/cameras_plot'+str(image_count) + '.jpg'
     plt.savefig(plot_img, format='jpg', dpi=500)
     # 表示
     plt.show()
