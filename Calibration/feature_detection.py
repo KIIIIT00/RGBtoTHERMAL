@@ -4,12 +4,10 @@ RGB画像と赤外線画像で特徴点マッチングをする
 # インポート
 import numpy as np
 import cv2
-from dynamixel_sdk import *
 from utils.DynamixelEX106 import DynamixelEX106
 from utils.SerialSetting import SerialSetting
 import os
 import time
-import keyboard
 
 class FeatureDetection():
     def __init__(self, rgb_image_path, thermal_image_path, rgb_corners_npy, thermal_corners_npy):
@@ -33,8 +31,8 @@ class FeatureDetection():
         thermal_float32 = thermal_array.astype(np.float32)
         rgb_array = np.load(self.rgb_corners_npy)
         rgb_float32 = rgb_array.astype(np.float32)
-        self.corners_thermal = thermal_float32
-        self.corners_rgb = rgb_float32
+        self.corners_thermal = thermal_float32[:25]
+        self.corners_rgb = rgb_float32[:25]
     
     def image_imread(self):
         """
@@ -80,6 +78,7 @@ class FeatureDetection():
         # 10. マッチングされた特徴点を取得
         src_pts = np.float32([kp_rgb[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
         dst_pts = np.float32([kp_thermal[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+        
         # 11. ホモグラフィー行列を計算
         H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
         height, width = self.thermal_image.shape
@@ -100,6 +99,8 @@ class FeatureDetection():
         # 6. RGB画像を赤外線画像にアライメント      
         height, width = self.thermal_image.shape[:2]
         aligned_rgb_image = cv2.warpPerspective(self.rgb_image, H, (width, height))
+        resize_rgb_image = cv2.resize(self.rgb_image, dsize=(width, height))
+        cv2.imshow("Resize Image", resize_rgb_image)
 
         # 7. RGB画像と赤外線画像を横並びに結合
         side_by_side = np.hstack((aligned_rgb_image, self.thermal_image))
@@ -120,7 +121,7 @@ class FeatureDetection():
         cv2.imwrite(output_file, self.side_by_side)
 
 if __name__ == "__main__":
-    image_count = 18
+    image_count = 34
     thermal_img_path = './Calibration/FOV/THERMAL/thermal_'+str(image_count) + '.jpg'
     rgb_img_path = './Calibration/FOV/RGB/rgb_'+str(image_count)+'.jpg'
     thermal_imgpoints2_npy = './Calibration/FOV/external/thermal_imgpoints2_'+str(image_count) + '.npy'
@@ -129,6 +130,6 @@ if __name__ == "__main__":
     OUTPUT = './Calibration/FOV/Feature/'
     
     feature_detection = FeatureDetection(rgb_img_path, thermal_img_path, rgb_imgpoints2_npy, thermal_imgpoints2_npy)
-    # feature_detection.feature_matching()
-    feature_detection.feature_matching_sift()
+    feature_detection.feature_matching()
+    #feature_detection.feature_matching_sift()
     feature_detection.save_side_by_side(OUTPUT, image_count)
