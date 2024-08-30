@@ -134,6 +134,8 @@ motor_accelerations_x = np.array(motor_accelerations_x)
 motor_accelerations_y = np.array(motor_accelerations_y)
 motor_accelerations_z = np.array(motor_accelerations_z)
 
+np.savez("./Ardiuino/motor_accelerations_fig/motor_acceleration.npz", time_stamps, motor_angles, motor_accelerations_x, motor_accelerations_y, motor_accelerations_z)
+
 print("time_stamps size:", time_stamps.size)
 print("motor_angles size:", motor_angles.size)
 # グラフの作成
