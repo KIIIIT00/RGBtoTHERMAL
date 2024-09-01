@@ -51,7 +51,7 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 OUTPUT_THERMAL = './Calibration/FOV/THERMAL/'
 OUTPUT_RGB = './Calibration/FOV/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 40
+rgbcount = thermalcount = 59
 # Dynamixel MX106の設定
 motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
@@ -97,7 +97,7 @@ while True:
         # モータが動作していないとき
         if INIT_POS - 4 <= present_pos and present_pos <= INIT_POS + 4:
             # モータが初期位置に到達したとき
-            if -0.03 <= y and y <= 0.11:
+            if -0.03 <= y and y <= 0.98:
                 # x方向の加速度が0から0.02[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき
@@ -119,7 +119,7 @@ while True:
 
         elif ROTATION_POS - 4 <= present_pos and present_pos <= ROTATION_POS + 4:
             # モータが180°回転したとき
-            if 0-0.04 <= y and y <= 0.05:
+            if -0.94 <= y and y <= 0.98:
                 # x方向の加速度が-0.07から0[g]以下のとき
                 if not flag_timer:
                     # タイマーが起動していないとき

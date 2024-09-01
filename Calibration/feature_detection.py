@@ -85,6 +85,44 @@ class FeatureDetection():
         aligned_rgb_image = cv2.warpPerspective(self.rgb_image, H, (width, height))
         
         self.side_by_side = np.hstack((aligned_rgb_image, cv2.cvtColor(self.thermal_image, cv2.COLOR_GRAY2BGR)))
+    
+    def feature_matching_AKAZE(self):
+        """
+        AKAZEで特徴量を抽出する
+        """
+        """
+        RGB画像と赤外線画像を読み込む
+        """
+        self.image_imread()
+        akaze = cv2.AKAZE_create()
+        kp_rgb, des_rgb = akaze.detectAndCompute(self.equalized_rgb_image, None)
+        kp_thermal, des_thermal = akaze.detectAndCompute(self.equalized_thermal_image, None)
+        
+        cv2.imshow("DETECT RGB", des_rgb)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        cv2.imshow("DETECT THERMAL", des_thermal)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
+        # 特徴点のマッチング
+        bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
+        matches = bf.match(des_rgb, des_thermal)
+        
+        # 特徴点の距離順に並べる
+        matches = sorted(matches, key=lambda x: x.distance)
+        
+        # 10. マッチングされた特徴点を取得
+        src_pts = np.float32([kp_rgb[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+        dst_pts = np.float32([kp_thermal[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+        
+        # 11. ホモグラフィー行列を計算
+        H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+        height, width = self.thermal_image.shape
+        aligned_rgb_image = cv2.warpPerspective(self.rgb_image, H, (width, height))
+        
+        self.side_by_side = np.hstack((aligned_rgb_image, cv2.cvtColor(self.thermal_image, cv2.COLOR_GRAY2BGR)))
+        
         
     def feature_matching(self):
         """
@@ -109,7 +147,7 @@ class FeatureDetection():
 
         # 結果の表示（オプション）
         cv2.imshow('Aligned RGB Image', aligned_rgb_image)
-        cv2.imshow('Side by Side', side_by_side)
+        cv2.imshow('Side by Side', self.side_by_side)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     
@@ -121,7 +159,7 @@ class FeatureDetection():
         cv2.imwrite(output_file, self.side_by_side)
 
 if __name__ == "__main__":
-    image_count = 34
+    image_count = 22
     thermal_img_path = './Calibration/FOV/THERMAL/thermal_'+str(image_count) + '.jpg'
     rgb_img_path = './Calibration/FOV/RGB/rgb_'+str(image_count)+'.jpg'
     thermal_imgpoints2_npy = './Calibration/FOV/external/thermal_imgpoints2_'+str(image_count) + '.npy'
@@ -130,6 +168,6 @@ if __name__ == "__main__":
     OUTPUT = './Calibration/FOV/Feature/'
     
     feature_detection = FeatureDetection(rgb_img_path, thermal_img_path, rgb_imgpoints2_npy, thermal_imgpoints2_npy)
-    feature_detection.feature_matching()
-    #feature_detection.feature_matching_sift()
+    #feature_detection.feature_matching()
+    feature_detection.feature_matching_AKAZE()
     feature_detection.save_side_by_side(OUTPUT, image_count)
