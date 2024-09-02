@@ -20,6 +20,29 @@ def undistort(img, mtx, dist):
         x, y, w, h = roi
         dst = dst[y:y+h, x:x+w]
         return dst
+
+def crop(rgb_img):
+    """
+    rgb画像をクロップする
+    """
+    rgb_img = rgb_img[29:420,71:571,:]
+    return rgb_img
+
+def resize(rgb_img, thermal_img):
+    """
+    rgb画像と赤外線画像のサイズをそろえる
+    """
+    rgb_h, rgb_w = rgb_img.shape[:2]
+    thermal_img = cv2.resize(thermal_img,(rgb_w, rgb_h))
+    return thermal_img
+
+def logo_cut(rgb_img, thermal_img):
+    """
+    FLIRのロゴをカットする
+    """
+    rgb_img = rgb_img[45:, :, :]
+    thermal_img = thermal_img[45:,:,:]
+    return rgb_img, thermal_img
     
 # 赤外線カメラの内部パラメータ
 thermal_mtx = np.array([773.41392054, 0, 329.198468,
@@ -34,8 +57,8 @@ rgb_mtx = np.array([621.80090236, 0, 309.61717191,
 rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
 
 # カメラの設定
-rgb_cap = cv2.VideoCapture(1)
-thermal_cap = cv2.VideoCapture(0)
+rgb_cap = cv2.VideoCapture(0)
+thermal_cap = cv2.VideoCapture(1)
 
 # 各カメラの撮影時の解像度の設定
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -51,7 +74,7 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 OUTPUT_THERMAL = './Calibration/FOV/THERMAL/'
 OUTPUT_RGB = './Calibration/FOV/RGB/'
 # フレームカウント
-rgbcount = thermalcount = 59
+rgbcount = thermalcount = 91
 # Dynamixel MX106の設定
 motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
@@ -74,11 +97,15 @@ while True:
     _, rgb_frame = rgb_cap.read()
     _, thermal_frame = thermal_cap.read()
     
-    rgb_frame = undistort(rgb_frame, rgb_mtx, rgb_dist)
-    thermal_frame = undistort(thermal_frame, thermal_mtx, thermal_dist)
+    # rgb_frame = undistort(rgb_frame, rgb_mtx, rgb_dist)
+    # thermal_frame = undistort(thermal_frame, thermal_mtx, thermal_dist)
+    rgb_frame = crop(rgb_frame)
+    thermal_frame = resize(rgb_frame, thermal_frame)
+    rgb_frame, thermal_frame = logo_cut(rgb_frame, thermal_frame)
     
     cv2.imshow('RGB', rgb_frame)
     cv2.imshow('Thermal', thermal_frame)
+    
         
     key = cv2.waitKey(1)
     is_moving = motor.is_moving()
