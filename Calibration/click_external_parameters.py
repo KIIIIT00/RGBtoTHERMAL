@@ -23,7 +23,7 @@ rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214
 rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
-image_count = 235
+image_count = 650
 # 赤外線画像読み込み
 thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
 thermal_img = cv2.imread(thermal_image_path)

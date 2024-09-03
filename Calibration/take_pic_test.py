@@ -1,5 +1,5 @@
 """
-加速度センサを用いた写真の撮影
+テスト用データを採集する
 """
 
 # インポート
@@ -83,10 +83,12 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 # OUTPUT_RGB = './Calibration/FOV/RGB/'
 
 # データセット用のディレクトリ
-OUTPUT_THERMAL = './DataSet/Scene2/THERMAL/train/'
-OUTPUT_RGB = './DataSet/Scene2/RGB/train/'
+OUTPUT_THERMAL = './DataSet/Scene2/THERMAL/test/'
+OUTPUT_RGB = './DataSet/Scene2/RGB/test/'
 # フレームカウント
-rgbcount = thermalcount = 105
+rgb_file_list = os.listdir(OUTPUT_RGB)
+thermal_file_list = os.listdir(OUTPUT_THERMAL)
+rgbcount = thermalcount = min(len(rgb_file_list), len(thermal_file_list)) + 1
 # Dynamixel MX106の設定
 motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
@@ -103,6 +105,10 @@ flag_init = True
 
 # タイマーが起動したかどうか
 flag_timer = False
+
+# RGB画像と赤外線画像を取得したかどうか
+thermal_cap_flag = False
+rgb_cap_flag = False
 
 while True:
 
@@ -152,6 +158,7 @@ while True:
                     thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
                     cv2.imwrite(thermal_filename, thermal_frame)
                     thermalcount += 1
+                    thermal_cap_flag = True
                     # rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
                     # cv2.imwrite(rgb_filename, rgb_frame)
                     # rgbcount += 1
@@ -173,6 +180,7 @@ while True:
                     rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
                     cv2.imwrite(rgb_filename, rgb_frame)
                     rgbcount += 1
+                    rgb_cap_flag = True
                     # thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
                     # cv2.imwrite(thermal_filename, thermal_frame)
                     # thermalcount += 1
@@ -180,58 +188,8 @@ while True:
                     flag_init = True
                     flag_timer = False
 
-    if keyboard.is_pressed('escape'):
-        print('Escが押されました')
+    # 両方の写真が取れたら，終了
+    if thermal_cap_flag and rgb_cap_flag:
         break
-    # if not is_moving:
-    #     print('present_pos', present_pos)
-    #      # モータが動作していないとき
-    #     if (-0.06<= x and x <= 0) or (0 <= x and x <= 0.01):
-    #         # 加速度センサのxが0から0.01の間のとき
-    #         #if INIT_POS - 1 <= present_pos and present_pos <= INIT_POS + 1:
-    #         if ROTATION_POS == present_pos:
-    #             print("ROTATION")
-    #             thermal_filename = os.path.join(OUTPUT_THERMAL,''f'thermal_{thermalcount}.jpg')
-    #             cv2.imwrite(thermal_filename, thermal_frame)
-    #             thermalcount += 1
-    #             motor.init_position()
-    
-    #         elif INIT_POS == present_pos:
-    #             # 初期位置に達したとき
-    #         #elif ROTATION_POS - 2 <= present_pos and present_pos <= ROTATION_POS + 2:
-    #             print("INIT")
-    #             rgb_filename = os.path.join(OUTPUT_RGB,''f'rgb_{rgbcount}.jpg')
-    #             cv2.imwrite(rgb_filename, rgb_frame)
-    #             rgbcount += 1
-    #             motor.rotate_to_180()
-    
-    # if key == ord('r'):
-    #     motor.rotate_to_180()
-    # elif key == ord('i'):
-    #     motor.init_position()
-    # elif key == ord('a'):
-    #     accelerometer_data = serial.read_accelerometer()
-    #     if accelerometer_data:
-    #         x, y, z = accelerometer_data
-    #         print(f"加速度: x={x} [g], y={y} [g], z={z} [g]")
-    # elif key == ord('q'):
-    #     break
-
-    # if keyboard.is_pressed('up'):
-    #     motor.rotate_to_180()
-    # if keyboard.is_pressed('down'):
-    #     motor.init_position()
-    # if keyboard.is_pressed('enter'):
-    #     accelerometer_data = serial.read_accelerometer()
-    #     if accelerometer_data:
-    #         x, y, z = accelerometer_data
-    #         print(f"加速度: x={x} [g], y={y} [g], z={z} [g]")
-    # if keyboard.is_pressed('esc'):
-    #     break
-    # motor.init_position()
-    # motor.rotate_to_180()
-    
-
-
 motor.disable_torque()
 cv2.destroyAllWindows()  
