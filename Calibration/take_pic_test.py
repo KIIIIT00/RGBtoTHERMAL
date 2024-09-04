@@ -52,6 +52,11 @@ def resize_aspect_ratio(rgb_img, thermal_img):
     thermal_img = thermal_img[1:,20:480,:]
     return rgb_img, thermal_img
 
+def delay(seconds):
+    start_time = time.time()  # 現在の時刻を取得
+    while (time.time() - start_time) < seconds:  # 指定した秒数が経過するまでループ
+        pass
+    
 # 赤外線カメラの内部パラメータ
 thermal_mtx = np.array([773.41392054, 0, 329.198468,
                         0, 776.32513558, 208.53439152,
@@ -65,8 +70,8 @@ rgb_mtx = np.array([621.80090236, 0, 309.61717191,
 rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
 
 # カメラの設定
-rgb_cap = cv2.VideoCapture(1)
-thermal_cap = cv2.VideoCapture(0)
+rgb_cap = cv2.VideoCapture(0)
+thermal_cap = cv2.VideoCapture(1)
 
 # 各カメラの撮影時の解像度の設定
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -90,7 +95,7 @@ rgb_file_list = os.listdir(OUTPUT_RGB)
 thermal_file_list = os.listdir(OUTPUT_THERMAL)
 rgbcount = thermalcount = min(len(rgb_file_list), len(thermal_file_list)) + 1
 # Dynamixel MX106の設定
-motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
+motor = DynamixelEX106(port_name='COM8', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
 print(motor.read_position())
 motor.set_speed(100)
@@ -109,6 +114,9 @@ flag_timer = False
 # RGB画像と赤外線画像を取得したかどうか
 thermal_cap_flag = False
 rgb_cap_flag = False
+
+# プログラムを一時停止させるフラグ
+stop_flag = False
 
 while True:
 
@@ -190,6 +198,21 @@ while True:
 
     # 両方の写真が取れたら，終了
     if thermal_cap_flag and rgb_cap_flag:
+        stop_flag = True
+        thermal_cap_flag = False
+        rgb_cap_flag = False
+        
+    if stop_flag: # ストップフラグがTrueのとき
+        while True:
+            if keyboard.is_pressed('space'): #spaceが押されたとき
+                break
+        delay(5) # 5秒遅延させる
+        stop_flag = False
+                
+    
+    if keyboard.is_pressed('escape'):
+        print('Escが押されました')
         break
+        
 motor.disable_torque()
 cv2.destroyAllWindows()  
