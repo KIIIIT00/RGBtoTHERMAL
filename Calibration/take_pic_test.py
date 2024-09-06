@@ -70,8 +70,8 @@ rgb_mtx = np.array([621.80090236, 0, 309.61717191,
 rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
 
 # カメラの設定
-rgb_cap = cv2.VideoCapture(0)
-thermal_cap = cv2.VideoCapture(1)
+rgb_cap = cv2.VideoCapture(1)
+thermal_cap = cv2.VideoCapture(0)
 
 # 各カメラの撮影時の解像度の設定
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -195,19 +195,21 @@ while True:
                     motor.cw_rotate_90()
                     flag_init = True
                     flag_timer = False
+        if thermal_cap_flag and rgb_cap_flag:
+            break
 
-    # 両方の写真が取れたら，終了
-    if thermal_cap_flag and rgb_cap_flag:
-        stop_flag = True
-        thermal_cap_flag = False
-        rgb_cap_flag = False
+    # # 両方の写真が取れたら，終了
+    # if thermal_cap_flag and rgb_cap_flag:
+    #     stop_flag = True
+    #     thermal_cap_flag = False
+    #     rgb_cap_flag = False
         
-    if stop_flag: # ストップフラグがTrueのとき
-        while True:
-            if keyboard.is_pressed('space'): #spaceが押されたとき
-                break
-        delay(5) # 5秒遅延させる
-        stop_flag = False
+    #     if stop_flag: # ストップフラグがTrueのとき
+    #         while True:
+    #             if keyboard.is_pressed('space'): #spaceが押されたとき
+    #                 break
+    #         delay(5) # 5秒遅延させる
+    #         stop_flag = False
                 
     
     if keyboard.is_pressed('escape'):

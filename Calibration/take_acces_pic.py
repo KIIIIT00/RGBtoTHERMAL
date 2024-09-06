@@ -65,8 +65,8 @@ rgb_mtx = np.array([621.80090236, 0, 309.61717191,
 rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
 
 # カメラの設定
-rgb_cap = cv2.VideoCapture(0)
-thermal_cap = cv2.VideoCapture(1)
+rgb_cap = cv2.VideoCapture(1)
+thermal_cap = cv2.VideoCapture(0)
 
 # 各カメラの撮影時の解像度の設定
 rgb_cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -90,7 +90,7 @@ rgb_file_list = os.listdir(OUTPUT_RGB)
 thermal_file_list = os.listdir(OUTPUT_THERMAL)
 rgbcount = thermalcount = min(len(rgb_file_list), len(thermal_file_list)) + 1
 # Dynamixel MX106の設定
-motor = DynamixelEX106(port_name='COM3', baudrate=57600, dxl_id=1)
+motor = DynamixelEX106(port_name='COM8', baudrate=57600, dxl_id=1)
 motor.cw_rotate_90()
 print(motor.read_position())
 motor.set_speed(100)
