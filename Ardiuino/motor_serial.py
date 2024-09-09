@@ -142,8 +142,8 @@ print("motor_angles size:", motor_angles.size)
 fig, ax1 = plt.subplots()
 
 # 角度のプロット
-ax1.set_xlabel('時間[s]')
-ax1.set_ylabel('現在の位置')
+ax1.set_xlabel('時間[s]', fontsize = 14)
+ax1.set_ylabel('現在の位置', fontsize = 14)
 ax1.plot(time_stamps, motor_angles, color='tab:blue', label='Dynamixel EX-106+の現在の位置')
 ax1.tick_params(axis = 'y')
 
@@ -156,12 +156,12 @@ ax2.plot(time_stamps, motor_accelerations_y, color='tab:green', label='加速度
 ax2.tick_params(axis='y')
 
 # グラフのタイトル
-plt.title('Dynamixel EX-106+の関節モードにおける現在の位置と加速度')
+plt.title('Dynamixel EX-106+の関節モードにおける現在の位置と加速度', fontsize = 16)
 
 # レジェンドの追加
 fig.tight_layout()
-ax1.legend(loc='upper left')
-ax2.legend(loc='upper right')
+ax1.legend(loc='upper left', fontsize = 12)
+ax2.legend(loc='upper right', fontsize = 12)
 
 # グラフの表示
 plt.show()
