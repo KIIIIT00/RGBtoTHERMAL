@@ -36,6 +36,52 @@ class ExternalParameterCalculator:
         print(self.corners2)
         return corners2
     
+    def get_projection_errors(self):
+        """
+        再投影誤差を計算する
+        
+        Returns
+        -------
+        procjection_error : float
+            再投影誤差
+        """
+        print(len(self.objpoints))
+        imgpoints2, _ = cv2.projectPoints(self.objp, self.rvecs, self.tvecs, self.mtx, self.dist)
+        self.imgpoints2 = imgpoints2
+        projection_error = cv2.norm(self.corners2, imgpoints2, cv2.NORM_L2) / len(self.imgpoints)
+        return projection_error
+    
+    def re_draw(self, img, file_name):
+        """
+        再投影されたポイントと元のコーナーを画像に描画して確認
+        """
+        for i in range(len(self.corners2)):
+            # 検出されたコーナーを緑で描画
+            corner = tuple(self.corners2[i].ravel().astype(int))
+            cv2.circle(img, corner, 5, (0, 255, 0), -1)  # 緑色
+            
+            # 再投影されたポイントを赤で描画
+            imgpoint = tuple(self.imgpoints2[i].ravel().astype(int))
+            cv2.circle(img, imgpoint, 5, (0, 0, 255), -1)  # 赤色
+        
+        cv2.imshow('Detected Corners (Green) and Reprojected Points (Red)', img)
+        # 指定のファイル名として保存する
+        #cv2.imwrite(file_name, img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
+    def save_imgpoints2_npy(self, file_name):
+        """
+        再投影されたimgpointsをnpyファイルに保存
+        """
+        np.save(file_name, self.imgpoints2)
+        
+    def save_corners_npy(self, file_name):
+        """
+        検出されたコーナーをnpyファイルに保存
+        """
+        np.save(file_name, self.corners2)
+        
     def calculate_external_parameters(self, corners2):
         print("objpoints:", self.objp)
         print("object points shape:", self.objp.shape)
@@ -45,6 +91,8 @@ class ExternalParameterCalculator:
         print("dist:", self.dist)
         print("Calculating external parameters...")
         ret3, rvecs, tvecs = cv2.solvePnP(self.objp, corners2, self.mtx, self.dist)
+        self.rvecs = rvecs
+        self.tvecs = tvecs
         return ret3, rvecs, tvecs
     
     def write_to_txt(self, filename, rvecs, tvecs):
@@ -64,10 +112,10 @@ class ExternalParameterCalculator:
 
         Parameters:
         - image_point: 画像座標系における2次元点 (u, v)。
-        - camera_matrix: カメラ行列 (3x3)。
+        - camera_matrix: カメラ行列 (3x3)
 
         Returns:
-        - camera_point: カメラ座標系における3次元点 (x, y, z)。
+        - camera_point: カメラ座標系における3次元点 (x, y, z)
         """
         fx = self.mtx[0, 0]
         fy = self.mtx[1, 1]
@@ -134,5 +182,12 @@ class ExternalParameterCalculator:
         camera_direction = np.dot(np.linalg.inv(R), np.array([[0], [0], [1]]))
         return camera_position, camera_direction
     
-    
-    
+    def world_coordinates(self, image_point, rotation_matrix):
+        """
+        ワールド座標系のx,y,z軸を求める
+        """
+        R, _ = cv2.Rodrigues(rotation_matrix)
+        x_axis = np.dot(np.linalg.inv(R), np.array([[1], [0], [0]]))
+        y_axis = np.dot(np.linalg.inv(R), np.array([[0], [1], [0]]))
+        z_axis = np.dot(np.linalg.inv(R), np.array([[0], [0], [1]]))
+        return x_axis, y_axis, z_axis

@@ -23,7 +23,7 @@ objp = np.zeros((1, CHECKERBOARD[0]*CHECKERBOARD[1], 3), np.float32)            
 objp[0,:,:2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)      # チェスボードの交点のワールド座標
 
 # Extracting path of individual image stored in a given directory
-images = glob.glob('./pics/*.png')
+images = glob.glob('./Calibration/chessboard_calibration_data/rgb/*.png')
 
 print("全ての画像の交点の画像座標を求めています")
 for filepath in tqdm(images):       # ※tqdmは繰り返し処理の進捗を表示するためのもの
@@ -45,8 +45,8 @@ ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.sh
 
 print(f'\n内部パラメータ: \n{mtx}')
 print(f'\n歪み係数: \n{dist}')
-#print(f'\n外部パラメータの回転行列：\n{rvecs}')
-#print(f'\n外部パラメータの並進ベクトル：\n{tvecs}')
+print(f'\n外部パラメータの回転行列：\n{rvecs}')
+print(f'\n外部パラメータの並進ベクトル：\n{tvecs}')
 
 # 予め求めておくことができるのは内部パラメータと歪み係数である．
 # カメラの位置を動かすと外部パラメータは変わってしまうので，この段階で求めた外部パラメータは必要ない．

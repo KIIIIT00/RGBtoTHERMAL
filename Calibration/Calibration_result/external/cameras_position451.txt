@@ -1,0 +1,12 @@
+Thermal Camera Position:
+x:[111.77508849], y:[95.30051101], z:[-514.78379755] 
+Thermal Camera Direcion: 
+x:[0.01157923], y:[-0.02271316], z:[0.99967496] 
+RGB Camera Position 
+x:[101.12599692], y:[138.39974125], z:[-546.48726776] 
+RGB Camera Direcion: 
+x:[-0.02952227], y:[-0.06337587], z:[0.99755297] 
+Thermal Projection: 
+6.9874458735116844 
+RGB Projection: 
+28.19257411723528 

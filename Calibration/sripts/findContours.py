@@ -6,14 +6,14 @@ import cv2
 import numpy as np
 
 
-img = cv2.imread('./Calibration/chessboard_calibration_data/thermal/pic62.jpg', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('./Calibration/pic4.jpg', cv2.IMREAD_GRAYSCALE)
 img = cv2.bitwise_not(img)
 #print(os.path.isfile('./Calibration/thermal_threshold99.jpg'))
 img_disp = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 contours, hierarchy = cv2.findContours(img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 # 円の大きさの閾値（最小半径と最大半径）
-min_radius = 25
+min_radius = 10
 max_radius = 100
 
 # 輪郭の点の描画

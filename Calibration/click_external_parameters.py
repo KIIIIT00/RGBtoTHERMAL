@@ -3,31 +3,34 @@ import cv2
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from utils.CameraCalibration import CameraCalibration
+from utils.cameracalibration import CameraCalibration
 from utils.EllipseFinder import EllipseFinder
 from utils.ExternalParameter import ExternalParameterCalculator
 
 chessboard_size = (5, 5)
-thermal_mtx = np.array([769.34777275, 0, 284.87790552,
-                        0, 771.09576331, 247.82882986,
+thermal_mtx = np.array([773.41392054, 0, 329.198468,
+                        0, 776.32513558, 208.53439152,
                         0 ,0 ,1]).reshape(3, 3)
 #print("thermal_mtx:", thermal_mtx.shape)
 # 赤外線カメラの内部パラメータ
-thermal_dist = np.array([-7.91810594e-1, 9.81301368e+00, -8.42753413-3, -1.46486095e-2, -3.88815631e+1])
+thermal_dist = np.array([1.67262996e-01, -2.94477097e+00, -2.30689758e-02, -1.33138573e-03, 1.02082943e+01])
 thermal_mtx = thermal_mtx.astype(np.float32)
 thermal_dist = thermal_dist.astype(np.float32)
 
 # RGBカメラの内部パラメータ
-rgb_mtx = np.array([622.56592404, 0, 318.24063181, 0, 623.20968839, 245.37576884, 0, 0, 1]).reshape(3,3)
-rgb_dist = np.array([ 0.14621503, -0.26374155, -0.00065967,  -0.00055428, 0.25360545])
+rgb_mtx = np.array([621.80090236, 0, 309.61717191, 0, 624.22815912, 234.27475688, 0, 0, 1]).reshape(3,3)
+rgb_dist = np.array([ 0.1311874, -0.21356334, -0.00798234,  -0.00648277, 0.10214072])
 rgb_mtx = rgb_mtx.astype(np.float32)
 rgb_dist = rgb_dist.astype(np.float32)
 
-# RGB画像読み込み
-thermal_image_path = './Calibration/chessboard_calibration_data/thermal/pic63.jpg'
+image_count = 650
+# 赤外線画像読み込み
+thermal_image_path = './Calibration/ExternalParameter_Chessboard/THERMAL/thermal_'+str(image_count) + '.jpg'
+thermal_img = cv2.imread(thermal_image_path)
 
 # RGB画像読み込み
-rgb_image_path = './Calibration/chessboard_check_16.png'
+rgb_image_path = './Calibration/ExternalParameter_Chessboard/RGB/rgb_'+str(image_count)+'.jpg'
+rgb_img = cv2.imread(rgb_image_path)
 
 # 赤外線画像におけるコーナーの検知
 thermal_finder = EllipseFinder(thermal_image_path)
@@ -68,31 +71,43 @@ print("corner:", rgb_corners)
 print("--------------------")
 
 # 画像座標
-image_point = np.array([[thermal_corners[0]], [thermal_corners[1]]], dtype=np.float32)
+
+# image_point = np.array([[thermal_corners[0]], [thermal_corners[1]]], dtype=np.float32)
+image_point = np.array([[0],[0]], dtype=np.float32)
 # 画像座標をカメラ座標に変換
 #camera_point = calibration.image_to_camera(image_point)
 camera_point = thermal_calibration.undistort_points(image_point)
 print("カメラ座標:", camera_point)
 # カメラ座標をワールド座標に変換
-world_point = thermal_calibration.camerapoint_to_worldpoint(camera_point, thermal_rotation_vector, thermal_translation_vector)
+#world_point = thermal_calibration.camerapoint_to_worldpoint(camera_point, thermal_rotation_vector, thermal_translation_vector)
 # カメラの位置と視点方向を表示
 camera_position, camera_direction = thermal_calibration.world_in_camerapoint(image_point, thermal_rotation_vector, thermal_translation_vector)
 #world_point = calibration.camera_to_world(camera_point, rotation_vector, translation_vector)
-print("ワールド座標:", world_point)# 3Dプロット
+print("ワールド座標:", camera_position)# 3Dプロット
 
 # RGB画像座標
-rgb_image_point = np.array([[rgb_corners[0]], [rgb_corners[1]]], dtype=np.float32)
+# rgb_image_point = np.array([[rgb_corners[0]], [rgb_corners[1]]], dtype=np.float32)
+rgb_image_point = np.array([[0], [0]], dtype=np.float32)
 # 画像座標をカメラ座標に変換
 rgb_camera_point = rgb_calibration.undistort_points(rgb_image_point)
 print("RGBカメラ座標:", rgb_camera_point)
 # カメラ座標をワールド座標に変換
-rgb_world_point = rgb_calibration.camerapoint_to_worldpoint(rgb_camera_point, rgb_rotation_vector, rgb_translation_vector)
+#rgb_world_point = rgb_calibration.camerapoint_to_worldpoint(rgb_camera_point, rgb_rotation_vector, rgb_translation_vector)
 # RGBカメラの位置と視点方向を表示
 rgb_camera_position, rgb_camera_direction = rgb_calibration.world_in_camerapoint(rgb_image_point, rgb_rotation_vector, rgb_translation_vector)
-print("RGBワールド座標:", rgb_world_point)
+print("RGBワールド座標:", rgb_camera_position)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
+
+thermal_projection = thermal_calibration.get_projection_errors()
+rgb_projection = rgb_calibration.get_projection_errors()
+
+print("thermal projection:", thermal_projection)
+print("rgb projection:", rgb_projection)
+
+thermal_calibration.re_draw(thermal_img, 's')
+rgb_calibration.re_draw(rgb_img, 's')
 
 # ワールド座標の点をプロット
 #ax.scatter(world_point[0], world_point[1], world_point[2], c='r', marker='o')
@@ -102,13 +117,21 @@ ax = fig.add_subplot(111, projection='3d')
 # カメラの位置をプロット
 ax.scatter(camera_position[0], camera_position[1], camera_position[2], c='b', marker='x', label='Camera Position')
 
+# カメラの位置を表示
+print("Thermal Camera Position: x:{x}, y:{y}, z:{z}".format(x = camera_position[0], y = camera_position[1], z=camera_position[2]))
+print("RGB Camera Position: x:{x}, y:{y}, z:{z}".format(x =rgb_camera_position[0], y = rgb_camera_position[1], z = rgb_camera_position[2]))
+
+# カメラの視線方向を表示
+print("Thermal Camera Direction: x:{x}, y:{y}, z:{z}".format(x = camera_direction[0], y = camera_direction[1], z = camera_direction[2]))
+print("RGB Camera Direction: x:{x}, y:{y}, z:{z}".format(x = rgb_camera_direction[0], y = rgb_camera_direction[1], z = rgb_camera_direction[2]))
+
 # RGBカメラの位置をプロット
 ax.scatter(rgb_camera_position[0], rgb_camera_position[1], rgb_camera_position[2], c='r', marker='o', label='RGB Camera Position')
 
 # カメラの視線方向をプロット
 ax.quiver(camera_position[0], camera_position[1], camera_position[2], 
           camera_direction[0], camera_direction[1], camera_direction[2], 
-          length=5.0, color='b', label='Camera Direction')
+          length=5.0, color='b', label=' Thermal Camera Direction')
 
 ax.quiver(rgb_camera_position[0], rgb_camera_position[1], rgb_camera_position[2], 
          rgb_camera_direction[0], rgb_camera_direction[1], rgb_camera_direction[2], 

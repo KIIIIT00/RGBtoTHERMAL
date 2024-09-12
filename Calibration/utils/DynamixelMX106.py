@@ -139,3 +139,15 @@ class DynamixelMX106:
     def close_port(self):
         # Close port
         self.port_handler.closePort()
+        
+if  __name__ == "__main__":
+    motor = DynamixelMX106(port_name='COM3', baud_rate=57600, motor_id=1)
+    motor.enable_torque()
+    motor.get_present_position(100)
+    motor.init_position()
+    print(motor.get_present_position())
+    time.sleep(2)  # Wait for 2 seconds
+    motor.rotate_to_180()
+    time.sleep(6)  # Wait for 2 seconds
+    motor.disable_torque()
+    motor.close_port()
