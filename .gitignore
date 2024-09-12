@@ -6,3 +6,4 @@ Data
 CameraCalibration
 Combine
 DataSet/Scene2/
+!DataSet/*.ps1
