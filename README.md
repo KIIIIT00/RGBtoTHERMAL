@@ -100,7 +100,7 @@ cd ./DataSet
 - 新たに作成したDataSetをzipファイルにし，DropBoxに移動する
 - DropBoxに移したzipファイルのリンクをコピーする
 - $url = " [ここにリンクをコピー]" 
-- $urlにおいて，"[https://www.dropbox.com/xxx/xxxx&dl=1]"とする
+- $urlにおいて，"xxxx&dl=1"とする
 
 
 ### 動作確認
