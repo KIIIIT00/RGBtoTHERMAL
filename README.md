@@ -81,7 +81,18 @@ RGB2THERMAL：RGB画像から赤外線画像を生成するためのデータ採
 
 <!-- コンテナの作成方法、パッケージのインストール方法など、開発環境構築に必要な情報を記載 -->
 - Anaconda
-- Windows 
+- Windows
+
+### Anacondaでの仮想環境
+```
+# 仮想環境の作成
+conda create --name [仮想環境名] python=3.11.9
+
+# 仮想環境のアクティベート
+conda activate [仮想環境名]
+
+```
+
 ### Dynamixel_sdkの設定
 ```
 users\anaconda\envs\[自分が使用する仮想環境]\Lib\scite-packeages\
