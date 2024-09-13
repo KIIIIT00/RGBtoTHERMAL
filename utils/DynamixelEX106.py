@@ -74,9 +74,9 @@ class DynamixelEX106:
       """
       result, error = self.packet_handler.write2ByteTxRx(self.port_handler, self.DXL_ID, self.ADDR_GOAL_POSITION, position)
       if result != COMM_SUCCESS:
-         print(f"Failed to set goal position: {self.packetHandler.getTxRxResult(result)}")
+         print(f"Failed to set goal position: {self.packet_handler.getTxRxResult(result)}")
       elif error != 0:
-         print(f"Error: {self.packetHandler.getRxPacketError(error)}")
+         print(f"Error: {self.packet_handler.getRxPacketError(error)}")
 
    def read_position(self):
       """
@@ -84,9 +84,9 @@ class DynamixelEX106:
       """
       position, result, error = self.packet_handler.read2ByteTxRx(self.port_handler, self.DXL_ID, self.ADDR_PRESENT_POSITION)
       if result != COMM_SUCCESS:
-         print(f"Failed to read position: {self.packetHandler.getTxRxResult(result)}")
+         print(f"Failed to read position: {self.packet_handler.getTxRxResult(result)}")
       elif error != 0:
-         print(f"Error: {self.packetHandler.getRxPacketError(error)}")
+         print(f"Error: {self.packet_handler.getRxPacketError(error)}")
       return position
 
    def set_speed(self, speed):
@@ -95,9 +95,9 @@ class DynamixelEX106:
       """
       result, error = self.packet_handler.write2ByteTxRx(self.port_handler, self.DXL_ID, self.ADDR_MOVING_SPEED, speed)
       if result != COMM_SUCCESS:
-         print(f"Failed to set speed: {self.packetHandler.getTxRxResult(result)}")
+         print(f"Failed to set speed: {self.packet_handler.getTxRxResult(result)}")
       elif error != 0:
-         print(f"Error: {self.packetHandler.getRxPacketError(error)}")
+         print(f"Error: {self.packet_handler.getRxPacketError(error)}")
 
    def is_moving(self):
       """
