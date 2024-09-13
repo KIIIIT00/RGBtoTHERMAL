@@ -59,6 +59,7 @@ RGB2THERMAL：RGB画像から赤外線画像を生成するためのデータ採
 
 
 ```
+.
 ├── 3Dmodel // 本研究で用いた機構の3Dデータ
 ├── DataSet // 取得したデータセット
 ├── model //CycleGANとpix2pixの基盤モデル
@@ -82,24 +83,25 @@ RGB2THERMAL：RGB画像から赤外線画像を生成するためのデータ採
 - Anaconda
 - Windows 
 
-### コンテナの作成と起動
+### DataSetフォルダ内のps1ファイル実行方法
 
-.env ファイルを以下の環境変数例と[環境変数の一覧](#環境変数の一覧)を元に作成
+.ps1ファイルは，PowerShellで実行
 
-.env
-MYSQL_ROOT_PASSWORD=root
-MYSQL_DATABASE=django-db
-MYSQL_USER=django
-MYSQL_PASSWORD=django
-MYSQL_HOST=db
-MYSQL_PORT=3306
-SECRET_KEY=django
-DJANGO_SETTINGS_MODULE=project.settings.local
+```
+# DataSetフォルダに移動
+cd ./DataSet
 
+# xxx.ps1ファイルを実行
+.\xxx.ps1
+```
 
-.env ファイルを作成後、以下のコマンドで開発環境を構築
+### DataSetフォルダ内のps1ファイル作成方法
 
-make prepare
+- 新たに作成したDataSetをzipファイルにし，DropBoxに移動する
+- DropBoxに移したzipファイルのリンクをコピーする
+- ps1ファイルにおいて，$url = " [ここにリンクをコピー]" を書き換える
+- $urlにおいて，"https://www.dropbox.com/xxx/xxxx&dl=1"とする
+
 
 ### 動作確認
 
