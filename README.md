@@ -57,8 +57,8 @@ RGB2THERMAL：RGB画像から赤外線画像を生成するためのデータ採
 
 <!-- Treeコマンドを使ってディレクトリ構成を記載 -->
 
-❯ tree -a -I "node_modules|.next|.git|.pytest_cache|static" -L 2
-.
+
+```
 ├── 3Dmodel // 本研究で用いた機構の3Dデータ
 ├── DataSet // 取得したデータセット
 ├── model //CycleGANとpix2pixの基盤モデル
@@ -73,7 +73,7 @@ RGB2THERMAL：RGB画像から赤外線画像を生成するためのデータ採
 ├── utils // 使いまわすクラス
 ├── .gitignore
 └── README.md
-
+```
 <p align="right">(<a href="#top">トップへ</a>)</p>
 
 ## 開発環境構築
