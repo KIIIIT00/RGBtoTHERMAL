@@ -72,7 +72,7 @@ RGB2THERMAL：RGB画像から赤外線画像を生成するためのデータ採
 │   └── Others // その他以外のソースコード
 ├── utils // 使いまわすクラス
 ├── .gitignore
-├── environment.yml //Anaconda専用の環境ファイル
+├── environment.yml // Anaconda専用の環境ファイル
 ├── dynamixel_sdk.zip // dyanmixelを動かすために必要なモジュール（仮想環境内に移動）
 └── README.md
 ```
