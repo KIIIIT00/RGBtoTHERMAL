@@ -23,8 +23,8 @@ fig, ax1 = plt.subplots()
 
 # 角度のプロット
 ax1.set_xlabel('時間[s]', fontsize = 28)
-ax1.set_ylabel('現在の位置[°]', fontsize = 28)
-ax1.plot(time_stamps, motor_angles, color='tab:red', linestyle = "dashed", label='現在の位置', linewidth = 3)
+ax1.set_ylabel('角度[°]', fontsize = 28)
+ax1.plot(time_stamps, motor_angles, color='tab:red', linestyle = "dashed", label='角度', linewidth = 3)
 ax1.tick_params(axis = 'x', labelsize=26, width=2)
 ax1.tick_params(axis = 'y', labelsize=26, width=2)
 
