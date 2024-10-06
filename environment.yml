@@ -143,4 +143,3 @@ dependencies:
       - ultralytics-thop==2.0.0
       - urllib3==2.2.2
       - wandb==0.17.4
-prefix: C:\Users\kawah\anaconda3\envs\RGBtoTHERMAL
