@@ -1,17 +1,18 @@
 """
 加速度センサを用いた写真の撮影
 """
-
 # インポート
+import os
+import sys
+
 import numpy as np
 import cv2
 from dynamixel_sdk import *
-from utils.DynamixelMX106 import DynamixelMX106
-from utils.DynamixelEX106 import DynamixelEX106
-from utils.SerialSetting import SerialSetting
-import os
 import time
 import keyboard
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../utils')))
+from DynamixelEX106 import DynamixelEX106
+from SerialSetting import SerialSetting
 
 def undistort(img, mtx, dist):
         h, w = img.shape[:2]
@@ -83,8 +84,8 @@ thermal_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 # OUTPUT_RGB = './Calibration/FOV/RGB/'
 
 # データセット用のディレクトリ
-OUTPUT_THERMAL = './DataSet/Scene2/THERMAL/train/'
-OUTPUT_RGB = './DataSet/Scene2/RGB/train/'
+OUTPUT_THERMAL = './DataSet/Scene2ver2/THERMAL/train/'
+OUTPUT_RGB = './DataSet/Scene2ver2/RGB/train/'
 # フレームカウント
 rgb_file_list = os.listdir(OUTPUT_RGB)
 thermal_file_list = os.listdir(OUTPUT_THERMAL)

@@ -2,7 +2,7 @@ import cv2
 
 # ビデオキャプチャオブジェクトを2つ作成する（カメラ0とカメラ1を使用）
 cap1 = cv2.VideoCapture(1)
-cap2 = cv2.VideoCapture(0)
+cap2 = cv2.VideoCapture(2)
 
 if not cap1.isOpened():
     print("カメラ1を開くことができませんでした")
