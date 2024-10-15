@@ -25,13 +25,13 @@ if (-Not (Test-Path -Path $finalExtractPath)) {
     Write-Output "Extraction complete."
 
     # 解凍後のディレクトリ構造を変更
-    $extractedFolder = Join-Path -Path $tempExtractPath -ChildPath "Scene1"
+    $extractedFolder = Join-Path -Path $tempExtractPath -ChildPath "Scene2"
     if (Test-Path -Path $extractedFolder) {
         Write-Output "Renaming extracted directory..."
         Rename-Item -Path $extractedFolder -NewName (Split-Path -Path $finalExtractPath -Leaf)
         
         # 解凍先の最終フォルダに移動
-        Move-Item -Path (Join-Path -Path $tempExtractPath -ChildPath "Scene1") -Destination $finalExtractPath
+        Move-Item -Path (Join-Path -Path $tempExtractPath -ChildPath "Scene2") -Destination $finalExtractPath
     }
 
     # 一時フォルダを削除（オプション）
