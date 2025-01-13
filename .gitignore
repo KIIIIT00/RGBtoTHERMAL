@@ -6,6 +6,7 @@ Data
 CameraCalibration
 Combine
 DataSet/Scene2/
+DataSet/*.jpg
 !DataSet/*.ps1
 results/Calibration/chessboard_calibration_data
 results/Calibration/ExternalParameter_Chessboard
